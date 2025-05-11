@@ -3,8 +3,10 @@ import { FiSearch } from 'react-icons/fi';
 import ProjectSingle from './ProjectSingle';
 import { ProjectsContext } from '../../context/ProjectsContext';
 import ProjectsFilter from './ProjectsFilter';
+import { useTranslation } from 'react-i18next';
 
-const ProjectsGrid = () => {
+const ProjectsGrid = ({limit}) => {
+	const { t } = useTranslation();
 	const {
 		projects,
 		searchProject,
@@ -15,11 +17,24 @@ const ProjectsGrid = () => {
 		selectProjectsByCategory,
 	} = useContext(ProjectsContext);
 
+	let displayedProjects = projects;
+
+	if (selectProject) {
+		displayedProjects = selectProjectsByCategory;
+	} else if (searchProject) {
+		displayedProjects = searchProjectsByTitle;
+	}
+
+	// Begränsa antalet projekt om limit är satt
+	if (limit) {
+		displayedProjects = displayedProjects.slice(0, limit);
+	}
+
 	return (
 		<section className="py-5 sm:py-10 mt-5 sm:mt-10">
 			<div className="text-center">
 				<p className="font-general-medium text-2xl sm:text-4xl mb-1 text-ternary-dark dark:text-ternary-light">
-					Projects portfolio
+				{t('projectsPortfolio')}
 				</p>
 			</div>
 
@@ -33,7 +48,7 @@ const ProjectsGrid = () => {
                         mb-3
                         "
 				>
-					Search projects by title or filter by category
+					{t('searchOrFilter')}
 				</h3>
 				<div
 					className="
@@ -84,7 +99,7 @@ const ProjectsGrid = () => {
 							name="name"
 							type="search"
 							required=""
-							placeholder="Search Projects"
+							placeholder={t('searchProjects')}
 							aria-label="Name"
 						/>
 					</div>
@@ -99,7 +114,7 @@ const ProjectsGrid = () => {
 							<ProjectSingle
 								title={project.title}
 								category={project.category}
-								image={project.img}
+								image={project.image}
 								key={project.id}
 							/>
 					  ))
@@ -108,15 +123,16 @@ const ProjectsGrid = () => {
 							<ProjectSingle
 								title={project.title}
 								category={project.category}
-								image={project.img}
+								image={project.image}
 								key={project.id}
 							/>
 					  ))
-					: projects.map((project) => (
+					: displayedProjects.map((project) => (
 							<ProjectSingle
-								title={project.title}
+								id={project.id}
+								title={project.name}
 								category={project.category}
-								image={project.img}
+								image={project.image}
 								key={project.id}
 							/>
 					  ))}

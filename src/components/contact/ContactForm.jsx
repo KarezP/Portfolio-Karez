@@ -1,19 +1,43 @@
+import emailjs from '@emailjs/browser';
+import { useRef } from 'react';
 import Button from '../reusable/Button';
 import FormInput from '../reusable/FormInput';
 
 const ContactForm = () => {
+	const form = useRef();
+
+	const sendEmail = (e) => {
+		e.preventDefault();
+
+		emailjs
+			.sendForm(
+				'service_ludcgjp',
+				'template_g7x4qng',
+				form.current,
+				'qtMIvX9AukzNkXKgJ'
+			)
+			.then(() => {
+				alert('Message sent successfully!');
+				form.current.reset();
+			})
+			.catch((error) => {
+				alert('Failed to send message. Please try again.');
+				console.log(error.text);
+			});
+	};
+
 	return (
 		<div className="w-full lg:w-1/2">
 			<div className="leading-loose">
 				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-					}}
+					ref={form}
+					onSubmit={sendEmail}
 					className="max-w-xl m-4 p-6 sm:p-10 bg-secondary-light dark:bg-secondary-dark rounded-xl shadow-xl text-left"
 				>
 					<p className="font-general-medium text-primary-dark dark:text-primary-light text-2xl mb-8">
 						Contact Form
 					</p>
+
 					<FormInput
 						inputLabel="Full Name"
 						labelFor="name"
@@ -29,7 +53,7 @@ const ContactForm = () => {
 						inputType="email"
 						inputId="email"
 						inputName="email"
-						placeholderText="Your email"
+						placeholderText="Your Email"
 						ariaLabelName="Email"
 					/>
 					<FormInput
@@ -56,6 +80,7 @@ const ContactForm = () => {
 							cols="14"
 							rows="6"
 							aria-label="Message"
+							required
 						></textarea>
 					</div>
 

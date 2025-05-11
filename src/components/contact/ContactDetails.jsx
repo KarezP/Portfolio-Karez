@@ -3,17 +3,17 @@ import { FiPhone, FiMapPin, FiMail } from 'react-icons/fi';
 const contacts = [
 	{
 		id: 1,
-		name: 'Your Address, Your City, Your Country',
+		name: 'Stockholm, Sweden',
 		icon: <FiMapPin />,
 	},
 	{
 		id: 2,
-		name: 'email@domain.com',
+		name: 'karezpeshawa75@gmail.com',
 		icon: <FiMail />,
 	},
 	{
 		id: 3,
-		name: '555 8888 888',
+		name: '+46 070 752 88 75',
 		icon: <FiPhone />,
 	},
 ];
@@ -27,15 +27,32 @@ const ContactDetails = () => {
 				</h2>
 				<ul className="font-general-regular">
 					{contacts.map((contact) => (
-						<li className="flex " key={contact.id}>
-							<i className="text-2xl text-gray-500 dark:text-gray-400 mr-4">
-								{contact.icon}
-							</i>
-							<span className="text-lg mb-4 text-ternary-dark dark:text-ternary-light">
-								{contact.name}
+						<li className="flex items-center mb-4" key={contact.id}>
+						  <i className="text-2xl text-gray-500 dark:text-gray-400 mr-4">
+							{contact.icon}
+						  </i>
+						  {contact.name.includes('@') ? (
+							<a
+							  href={`mailto:${contact.name}`}
+							  className="text-lg text-ternary-dark dark:text-ternary-light hover:underline"
+							>
+							  {contact.name}
+							</a>
+						  ) : contact.name.startsWith('+') || contact.name.match(/\d{3}/) ? (
+							<a
+							  href={`tel:${contact.name}`}
+							  className="text-lg text-ternary-dark dark:text-ternary-light hover:underline"
+							>
+							  {contact.name}
+							</a>
+						  ) : (
+							<span className="text-lg text-ternary-dark dark:text-ternary-light">
+							  {contact.name}
 							</span>
+						  )}
 						</li>
-					))}
+					  ))}
+					  
 				</ul>
 			</div>
 		</div>

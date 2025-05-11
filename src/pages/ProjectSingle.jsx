@@ -4,10 +4,14 @@ import ProjectInfo from '../components/projects/ProjectInfo';
 import ProjectRelatedProjects from '../components/projects/ProjectRelatedProjects';
 import { SingleProjectProvider } from '../context/SingleProjectContext';
 import { motion } from 'framer-motion';
+import { useParams } from 'react-router-dom';
+
 
 const ProjectSingle = () => {
+	const { id } = useParams();
 	return (
 		<motion.div
+			key={id}
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1, delay: 1 }}
 			transition={{
@@ -17,13 +21,14 @@ const ProjectSingle = () => {
 			}}
 			className="container mx-auto mt-5 sm:mt-10"
 		>
-			<SingleProjectProvider>
+			<SingleProjectProvider projectId={id}>
 				<ProjectHeader />
 				<ProjectGallery />
 				<ProjectInfo />
 				<ProjectRelatedProjects />
 			</SingleProjectProvider>
-		</motion.div>
+			</motion.div>
+
 	);
 };
 

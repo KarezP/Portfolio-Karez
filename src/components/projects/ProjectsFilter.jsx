@@ -1,11 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 const selectOptions = [
-	'Web Application',
-	'Mobile Application',
-	'UI/UX Design',
-	'Branding',
+	'Frontend',
+	'Fullstack',
+	'UX/UI Design',
 ];
 
 const ProjectsFilter = ({ setSelectProject }) => {
+	const { t } = useTranslation();
 	return (
 		<select
 			onChange={(e) => {
@@ -27,12 +29,12 @@ const ProjectsFilter = ({ setSelectProject }) => {
                 dark:text-ternary-light
             "
 		>
-			<option value={setSelectProject} className="text-sm sm:text-md">
-				All Projects
+			<option value="" className="text-sm sm:text-md">
+				{t('allProjects')}
 			</option>
 
 			{selectOptions.map((option) => (
-				<option className="text-normal sm:text-md" key={option}>
+				<option value={option} key={option} className="text-normal sm:text-md">
 					{option}
 				</option>
 			))}
@@ -41,3 +43,4 @@ const ProjectsFilter = ({ setSelectProject }) => {
 };
 
 export default ProjectsFilter;
+

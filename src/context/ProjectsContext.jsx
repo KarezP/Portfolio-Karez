@@ -12,7 +12,7 @@ export const ProjectsProvider = (props) => {
 
 	// Search projects by project title
 	const searchProjectsByTitle = projects.filter((item) => {
-		const result = item.title
+		const result = item.name
 			.toLowerCase()
 			.includes(searchProject.toLowerCase())
 			? item

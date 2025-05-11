@@ -16,8 +16,7 @@ const AppHeader = () => {
 	const toggleMenu = () => setShowMenu(!showMenu);
 
 	const showHireMeModal = () => {
-		const html = document.documentElement;
-		html.classList.toggle('overflow-y-hidden');
+		document.documentElement.classList.toggle('overflow-y-hidden');
 		setShowModal(!showModal);
 	};
 
@@ -66,36 +65,62 @@ const AppHeader = () => {
 				</div>
 
 				{/* Mobile menu */}
-				<div className={`${showMenu ? 'block' : 'hidden'} sm:hidden mt-4`}>
+				<div className={`${showMenu ? 'block' : 'hidden'} sm:hidden mt-4 px-4 overflow-y-auto max-h-[calc(100vh-80px)]`}>
+
 					{['projects', 'about', 'contact', 'skills'].map((key) => (
 						<Link
 							key={key}
 							to={key === 'skills' ? '/Skills' : `/${key}`}
-							className="block text-left text-lg text-primary-dark dark:text-ternary-light hover:text-secondary-dark dark:hover:text-secondary-light sm:mx-4 mb-2 sm:py-2"
+							className="block text-left text-lg text-primary-dark dark:text-ternary-light hover:text-secondary-dark dark:hover:text-secondary-light mb-2"
 							aria-label={t(key)}
 						>
 							{t(key)}
 						</Link>
 					))}
 
-					<div className="border-t-2 pt-3 sm:pt-0 sm:border-t-0 border-primary-light dark:border-secondary-dark">
+					{/* Hire Me (mobile) */}
+					<div className="border-t-2 pt-3 mt-3 border-primary-light dark:border-secondary-dark">
 						<span
 							onClick={showHireMeModal}
-							className="font-general-medium sm:hidden block text-left text-md bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm rounded-sm px-4 py-2 mt-2 duration-300 w-24"
+							className="font-general-medium block text-left text-md bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm rounded-sm px-4 py-2 mt-2 duration-300 w-28"
 							aria-label="Hire Me Button"
 						>
 							<Button title={t('hireMe')} />
 						</span>
+					</div>
+
+					{/* Theme + Language (mobile) */}
+					<div className="flex items-center gap-4 mt-4">
+						<div
+							onClick={() => setTheme(activeTheme)}
+							aria-label="Theme Switcher"
+							className="bg-primary-light dark:bg-ternary-dark p-3 shadow-sm rounded-xl cursor-pointer"
+						>
+							{activeTheme === 'dark' ? (
+								<FiMoon className="text-ternary-dark dark:text-ternary-light text-xl" />
+							) : (
+								<FiSun className="text-gray-200 text-xl" />
+							)}
+						</div>
+
+						<select
+							onChange={(e) => handleLanguageChange(e.target.value)}
+							className="bg-transparent border text-sm dark:text-white border-gray-300 dark:border-gray-600 rounded px-2 py-1"
+							value={i18n.language}
+						>
+							<option value="en">EN</option>
+							<option value="sv">SV</option>
+						</select>
 					</div>
 				</div>
 
 				{/* Desktop menu */}
-				<div className="font-general-medium hidden m-0 sm:ml-4 mt-5 sm:mt-3 sm:flex p-5 sm:p-0 justify-center items-center shadow-lg sm:shadow-none">
+				<div className="font-general-medium hidden sm:flex p-0 items-center justify-center">
 					{['projects', 'about', 'contact', 'skills'].map((key) => (
 						<Link
 							key={key}
 							to={key === 'skills' ? '/Skills' : `/${key}`}
-							className="block text-left text-lg text-primary-dark dark:text-ternary-light hover:text-secondary-dark dark:hover:text-secondary-light sm:mx-4 mb-2 sm:py-2"
+							className="text-lg text-primary-dark dark:text-ternary-light hover:text-secondary-dark dark:hover:text-secondary-light mx-4"
 							aria-label={t(key)}
 						>
 							{t(key)}
@@ -103,22 +128,22 @@ const AppHeader = () => {
 					))}
 				</div>
 
-				{/* Right side: Hire Me, Theme, Language */}
-				<div className="hidden sm:flex justify-between items-center flex-col md:flex-row space-x-4">
-					<div className="hidden md:flex">
-						<span
-							onClick={showHireMeModal}
-							className="text-md font-general-medium bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm rounded-md px-5 py-2.5 duration-300"
-							aria-label="Hire Me Button"
-						>
-							<Button title={t('hireMe')} />
-						</span>
-					</div>
+				{/* Desktop right side */}
+				<div className="hidden sm:flex justify-between items-center space-x-4">
+					{/* Hire Me */}
+					<span
+						onClick={showHireMeModal}
+						className="text-md font-general-medium bg-indigo-500 hover:bg-indigo-600 text-white shadow-sm rounded-md px-5 py-2.5 duration-300"
+						aria-label="Hire Me Button"
+					>
+						<Button title={t('hireMe')} />
+					</span>
 
+					{/* Theme Switcher */}
 					<div
 						onClick={() => setTheme(activeTheme)}
 						aria-label="Theme Switcher"
-						className="ml-2 bg-primary-light dark:bg-ternary-dark p-3 shadow-sm rounded-xl cursor-pointer"
+						className="bg-primary-light dark:bg-ternary-dark p-3 shadow-sm rounded-xl cursor-pointer"
 					>
 						{activeTheme === 'dark' ? (
 							<FiMoon className="text-ternary-dark hover:text-gray-400 dark:text-ternary-light dark:hover:text-primary-light text-xl" />
@@ -127,9 +152,10 @@ const AppHeader = () => {
 						)}
 					</div>
 
+					{/* Language Switcher */}
 					<select
 						onChange={(e) => handleLanguageChange(e.target.value)}
-						className="ml-2 bg-transparent border text-sm dark:text-white border-gray-300 dark:border-gray-600 rounded px-2 py-1"
+						className="bg-transparent border text-sm dark:text-white border-gray-300 dark:border-gray-600 rounded px-2 py-1"
 						value={i18n.language}
 					>
 						<option value="en">EN</option>
@@ -138,10 +164,8 @@ const AppHeader = () => {
 				</div>
 			</div>
 
-			{/* Hire me modal */}
-			{showModal && (
-				<HireMeModal onClose={showHireMeModal} onRequest={showHireMeModal} />
-			)}
+			{/* Hire Me Modal */}
+			{showModal && <HireMeModal onClose={showHireMeModal} />}
 		</motion.nav>
 	);
 };

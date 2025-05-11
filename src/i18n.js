@@ -203,6 +203,15 @@ i18n
         shareHeading: "Share This",
         relatedTitle: "Related Projects"
       },
+      hireMeModal: {
+        title: "Hire Me",
+        name: "Your Name",
+        email: "Your Email",
+        select: "Select a Service",
+        description: "Project Description",
+        send: "Send Message",
+        close: "Close"
+      },
       
   
       },
@@ -400,7 +409,16 @@ i18n
             detail_3: "Konsekvent komponentstruktur och branding i hela designen.",
             shareHeading: "Dela projektet",
             relatedTitle: "Relaterade projekt"
-          }
+          },
+          hireMeModal: {
+            title: "Anlita mig",
+            name: "Ditt namn",
+            email: "Din e-post",
+            select: "Välj tjänst",
+            description: "Projektsammanfattning",
+            send: "Skicka meddelande",
+            close: "Stäng"
+          },
           
       }
     }

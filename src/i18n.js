@@ -32,7 +32,7 @@ i18n
           searchProjects: "Search Projects",
           bannerGreeting: "Hi, I am Karez",
           bannerRole: "Frontend Developer & UX/UI Designer",
-          bannerInternship: "Actively seeking an LIA (internship) opportunity starting week 28, 2025"",
+          bannerInternship: "Actively seeking an LIA (internship) opportunity starting week 28, 2025",
           downloadCV: "Download CV",
           title: "What project are you looking for?",
           name: "Name",

@@ -26,7 +26,7 @@ const socialLinks = [
 		id: 3,
 		icon: <FiLinkedin />,
 		label: 'LinkedIn',
-		url: 'https://www.linkedin.com/in/karez',
+		url: 'https://www.linkedin.com/in/karez-peshawa/',
 	},
 	{
 		id: 4,

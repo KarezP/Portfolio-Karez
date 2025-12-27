@@ -4,7 +4,8 @@ import SuntripDesktop from '../images/suntrip-desktop.png';
 import SuntripMobile from '../images/suntrip-mobile.png';
 import Weather from '../images/weather-preview.png';
 import Todo from '../images/todo-preview.png';
-import Quiz from '../images/quiz-preview.png'; 
+import Quiz from '../images/quiz-preview.png';
+import KarezAI from '../images/karezai-preview.png';
 
 
 
@@ -76,6 +77,17 @@ export const projectsData = [
 	  code: 'https://github.com/KarezP/Quiz-game',
 	  demo: 'https://verdant-gingersnap-51bad0.netlify.app/',
 	  image: Quiz,
+	},
+	{
+	  id: 7,
+	  name: 'karezai.name',
+	  category: 'karezai.category',
+	  description: 'karezai.description',
+	  tools: ['Claude AI', 'Markdown', 'Git', 'Claude Code'],
+	  role: 'karezai.role',
+	  code: 'https://github.com/KarezP/karezai',
+	  demo: '',
+	  image: KarezAI,
 	},
   ];
   

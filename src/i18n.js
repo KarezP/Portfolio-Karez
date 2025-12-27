@@ -85,6 +85,12 @@ i18n
             description: "Multiple-choice quiz game with score tracking.",
             role: "Frontend Developer"
           },
+          karezai: {
+            name: "KarezAI",
+            category: "AI Tool",
+            description: "AI agent system for design analysis and project documentation with Claude.",
+            role: "AI Developer"
+          },
           project_nandin: {
             title: "NANDIN – Food Recipe App",
             imageTitle: "NANDIN Screenshot",
@@ -203,7 +209,25 @@ i18n
         shareHeading: "Share This",
         relatedTitle: "Related Projects"
       },
-      hireMeModal: {
+      project_karezai: {
+            title: "KarezAI – AI Agent System",
+            imageTitle: "KarezAI Screenshot",
+            aboutHeading: "About the Project",
+            projectLabel: "Project",
+            projectType: "AI Development Tool",
+            roleLabel: "Role",
+            role: "AI Developer",
+            objectiveHeading: "Objective",
+            objective: "To build an AI-powered agent system for design analysis and automated project documentation using Claude.",
+            techTitle: "Tools & Technologies",
+            detailsHeading: "Project Details",
+            detail_1: "Redesign Agent analyzes websites and provides modern, high-class design recommendations with structured output.",
+            detail_2: "Documentation Agent tracks work sessions, documents achievements, and updates portfolio automatically.",
+            detail_3: "Built with Claude Code, featuring modular markdown-based agent definitions and templates.",
+            shareHeading: "Share This",
+            relatedTitle: "Related Projects"
+          },
+          hireMeModal: {
         title: "Hire Me",
         name: "Your Name",
         email: "Your Email",
@@ -291,6 +315,12 @@ i18n
             category: "Frontend",
             description: "Flervalsquiz med poängräkning och en fråga i taget.",
             role: "Frontendutvecklare"
+          },
+          karezai: {
+            name: "KarezAI",
+            category: "AI-verktyg",
+            description: "AI-agentsystem för designanalys och projektdokumentation med Claude.",
+            role: "AI-utvecklare"
           },
 
           project_desmal: {
@@ -407,6 +437,24 @@ i18n
             detail_1: "Desktopversionen innehåller sök, filter, kampanjer och bokningsöversikt.",
             detail_2: "Mobilversionen fokuserar på kompakt sökgränssnitt och enkel navigering.",
             detail_3: "Konsekvent komponentstruktur och branding i hela designen.",
+            shareHeading: "Dela projektet",
+            relatedTitle: "Relaterade projekt"
+          },
+          project_karezai: {
+            title: "KarezAI – AI-agentsystem",
+            imageTitle: "KarezAI-skärmdump",
+            aboutHeading: "Om projektet",
+            projectLabel: "Projekt",
+            projectType: "AI-utvecklingsverktyg",
+            roleLabel: "Roll",
+            role: "AI-utvecklare",
+            objectiveHeading: "Syfte",
+            objective: "Att bygga ett AI-drivet agentsystem för designanalys och automatiserad projektdokumentation med Claude.",
+            techTitle: "Verktyg & Tekniker",
+            detailsHeading: "Projektbeskrivning",
+            detail_1: "Redesign Agent analyserar webbplatser och ger moderna, högklassiga designrekommendationer med strukturerad output.",
+            detail_2: "Documentation Agent spårar arbetssessioner, dokumenterar prestationer och uppdaterar portföljen automatiskt.",
+            detail_3: "Byggt med Claude Code, med modulära markdown-baserade agentdefinitioner och mallar.",
             shareHeading: "Dela projektet",
             relatedTitle: "Relaterade projekt"
           },

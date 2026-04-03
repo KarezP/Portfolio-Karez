@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "siteTitle": "Karez Peshawa | Cinematic Space Portfolio",
+    "siteDescription": "A cinematic portfolio by Karez Peshawa, combining frontend engineering, product thinking, and design-aware execution."
+  },
+  "hud": {
+    "statusOnline": "NAVIGATION ONLINE",
+    "statusNominal": "SYSTEM STATUS: NOMINAL",
+    "destination": "DESTINATION",
+    "distance": "DISTANCE",
+    "velocity": "VELOCITY",
+    "course": "COURSE",
+    "integrity": "INTEGRITY",
+    "home": "HOME",
+    "returnToSpace": "RETURN TO SPACE",
+    "languageToggle": "SV / EN",
+    "projectsLabel": "PROJECTS",
+    "aboutLabel": "ABOUT",
+    "contactLabel": "CONTACT"
+  },
+  "cockpit": {
+    "eyebrow": "KAREZ PESHAWA / FRONTEND + PRODUCT-MINDED BUILDER",
+    "title": "Designing and building digital experiences with structure, polish, and real delivery behind them.",
+    "body": "I work across frontend engineering, UX thinking, and visual execution. Most recently at Reaktion, I helped ship live client work from early design direction through production-ready implementation.",
+    "primaryCta": "Begin navigation",
+    "secondaryCta": "View mission profile",
+    "proof": [
+      "7-month internship extended from 3 months",
+      "Two live client websites shipped",
+      "Highest grade from supervisor"
+    ]
+  },
+  "overview": {
+    "intro": "A guided portfolio journey through selected work, professional direction, and contact.",
+    "projectsLabel": "PROJECTS",
+    "aboutLabel": "ABOUT",
+    "contactLabel": "CONTACT"
+  },
+  "planets": {
+    "projects": {
+      "eyebrow": "Selected work",
+      "title": "Projects that show delivery, interface judgment, and technical range.",
+      "intro": "This selection focuses on work that demonstrates real implementation, visual discipline, and product thinking rather than volume.",
+      "cards": [
+        {
+          "slug": "hrnytt",
+          "title": "HRnytt",
+          "summary": "Responsive redesign of a Swedish HR news platform, from concept and Figma system through frontend implementation and launch.",
+          "stack": ["HTML", "CSS", "Figma", "Accessibility"],
+          "type": "Client work",
+          "links": {
+            "label": "Editorial platform rebuild"
+          }
+        },
+        {
+          "slug": "linnea-medical",
+          "title": "Linnea Medical Care",
+          "summary": "Bilingual healthcare website designed to communicate clarity, trust, and calm while meeting practical accessibility requirements.",
+          "stack": ["Frontend", "UX/UI", "Bilingual Content", "WCAG"],
+          "type": "Client work",
+          "links": {
+            "label": "Healthcare brand and website"
+          }
+        },
+        {
+          "slug": "questos",
+          "title": "QuestOS",
+          "summary": "Product design contribution for an AI-powered career platform, including mascot design, onboarding refinement, and navigation simplification.",
+          "stack": ["Figma", "UX Architecture", "Product Design"],
+          "type": "Product contribution",
+          "links": {
+            "label": "AI product contribution"
+          }
+        },
+        {
+          "slug": "desmal",
+          "title": "DESMAL",
+          "summary": "Fullstack fashion e-commerce concept with authentication, filtering, cart flows, and a stronger focus on interface structure.",
+          "stack": ["React", "Node.js", "MySQL"],
+          "type": "Product concept",
+          "links": {
+            "label": "Commerce concept build"
+          }
+        },
+        {
+          "slug": "snabbsnack",
+          "title": "SnabbSnack",
+          "summary": "Real-time chat application focused on live interaction, frontend responsiveness, and message flow clarity.",
+          "stack": ["React", "Vite", "WebSockets"],
+          "type": "Practice work",
+          "links": {
+            "label": "Realtime messaging app"
+          }
+        }
+      ]
+    },
+    "about": {
+      "eyebrow": "Mission profile",
+      "title": "A frontend developer with strong design instincts and a bias toward shipping.",
+      "intro": "I am currently completing a 7-month internship at Reaktion, where I have delivered two live client websites and worked across design, development, accessibility, and collaboration with broader teams.",
+      "body": "My strongest work sits between product clarity and frontend execution. I enjoy turning rough requirements into interfaces that feel structured, calm, and ready for real users. I also bring a systems mindset to tools and workflow, and I have introduced AI-assisted ways of working that are now part of my team's daily process.",
+      "timelineHeading": "Recent trajectory",
+      "timeline": [
+        "Delivered live client work at Reaktion from design direction to production frontend.",
+        "Built bilingual and accessibility-aware interfaces for real organizations.",
+        "Contributed product and visual thinking beyond pure implementation.",
+        "Introduced AI-assisted tools that are now part of daily team workflow."
+      ],
+      "skillsHeading": "Core strengths",
+      "skills": [
+        "Frontend engineering",
+        "UX/UI design",
+        "Responsive systems",
+        "Accessibility-aware implementation",
+        "Design-to-code workflow",
+        "AI-assisted product execution"
+      ],
+      "factsHeading": "Proof points",
+      "facts": [
+        "25-person agency environment",
+        "6-person delivery team collaboration",
+        "Two live client launches",
+        "Highest supervisor assessment"
+      ]
+    },
+    "contact": {
+      "eyebrow": "Open channel",
+      "title": "Available for ambitious teams that value frontend quality and design judgment.",
+      "intro": "I am looking for opportunities where I can contribute across interface quality, implementation detail, and product thinking.",
+      "availability": "Currently open to internship and junior-to-mid frontend opportunities, especially in teams where design and engineering work closely together.",
+      "formHeading": "Start the conversation",
+      "directLabel": "Direct contact",
+      "responseNote": "The strongest outreach is specific: team, role, product, and why the fit makes sense.",
+      "channels": [
+        "Internship opportunities starting with strong frontend and UX ownership",
+        "Junior-to-mid frontend roles with close design collaboration",
+        "Selected freelance or project-based digital product work"
+      ]
+    }
+  },
+  "common": {
+    "liveSite": "Live site",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "contact": {
+    "email": "karezpeshawa75@gmail.com",
+    "phone": "+46 70 752 8875",
+    "linkedinUrl": "https://www.linkedin.com/in/karez-peshawa/",
+    "githubUrl": "https://github.com/KarezP"
+  },
+  "references": {
+    "quoteLabel": "Supervisor assessment",
+    "quote": "Very curious, engaged and capable junior frontend developer with strong responsibility for learning and delivery."
+  }
+}

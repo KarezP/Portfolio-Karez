@@ -5,7 +5,13 @@ import { ProjectsContext } from '../../context/ProjectsContext';
 import ProjectsFilter from './ProjectsFilter';
 import { useTranslation } from 'react-i18next';
 
-const ProjectsGrid = ({limit}) => {
+const ProjectsGrid = ({
+	limit,
+	showControls = true,
+	headingKey = 'projectsPortfolio',
+	introKey = '',
+	featured = false,
+}) => {
 	const { t } = useTranslation();
 	const {
 		projects,
@@ -32,26 +38,35 @@ const ProjectsGrid = ({limit}) => {
 
 	return (
 		<section className="py-5 sm:py-10 mt-5 sm:mt-10">
-			<div className="text-center">
-				<p className="font-general-medium text-2xl sm:text-4xl mb-1 text-ternary-dark dark:text-ternary-light">
-				{t('projectsPortfolio')}
+			<div className={showControls ? 'text-center' : 'max-w-2xl'}>
+				<p className="font-general-medium text-sm uppercase tracking-[0.28em] text-gray-500 dark:text-gray-300">
+					{t('selectedWorkEyebrow')}
 				</p>
+				<h2 className="font-general-semibold mt-4 text-3xl sm:text-4xl text-ternary-dark dark:text-ternary-light">
+					{t(headingKey)}
+				</h2>
+				{introKey ? (
+					<p className="mt-5 text-lg leading-8 text-gray-600 dark:text-gray-300">
+						{t(introKey)}
+					</p>
+				) : null}
 			</div>
 
-			<div className="mt-10 sm:mt-16">
-				<h3
-					className="font-general-regular 
+			{showControls ? (
+				<div className="mt-10 sm:mt-16">
+					<h3
+						className="font-general-regular 
                         text-center text-secondary-dark
                         dark:text-ternary-light
                         text-md
                         sm:text-xl
                         mb-3
                         "
-				>
-					{t('searchOrFilter')}
-				</h3>
-				<div
-					className="
+					>
+						{t('searchOrFilter')}
+					</h3>
+					<div
+						className="
                         flex
                         justify-between
                         border-b border-primary-light
@@ -59,10 +74,10 @@ const ProjectsGrid = ({limit}) => {
                         pb-3
                         gap-3
                         "
-				>
-					<div className="flex justify-between gap-2">
-						<span
-							className="
+					>
+						<div className="flex justify-between gap-2">
+							<span
+								className="
                                 hidden
                                 sm:block
                                 bg-primary-light
@@ -72,14 +87,14 @@ const ProjectsGrid = ({limit}) => {
                                 rounded-xl
                                 cursor-pointer
                                 "
-						>
-							<FiSearch className="text-ternary-dark dark:text-ternary-light w-5 h-5"></FiSearch>
-						</span>
-						<input
-							onChange={(e) => {
-								setSearchProject(e.target.value);
-							}}
-							className="font-general-medium 
+							>
+								<FiSearch className="text-ternary-dark dark:text-ternary-light w-5 h-5"></FiSearch>
+							</span>
+							<input
+								onChange={(e) => {
+									setSearchProject(e.target.value);
+								}}
+								className="font-general-medium 
                                 pl-3
                                 pr-1
                                 sm:px-4
@@ -95,35 +110,44 @@ const ProjectsGrid = ({limit}) => {
                                 text-primary-dark
                                 dark:text-ternary-light
                                 "
-							id="name"
-							name="name"
-							type="search"
-							required=""
-							placeholder={t('searchProjects')}
-							aria-label="Name"
-						/>
+								id="name"
+								name="name"
+								type="search"
+								required=""
+								placeholder={t('searchProjects')}
+								aria-label="Name"
+							/>
+						</div>
+
+						<ProjectsFilter setSelectProject={setSelectProject} />
 					</div>
-
-					<ProjectsFilter setSelectProject={setSelectProject} />
 				</div>
-			</div>
+			) : null}
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-6 sm:gap-10">
+			<div className="grid grid-cols-1 gap-6 mt-10 md:grid-cols-2 xl:grid-cols-3 sm:gap-8">
 				{selectProject
 					? selectProjectsByCategory.map((project) => (
 							<ProjectSingle
+								id={project.id}
 								title={project.title}
 								category={project.category}
+								description={project.description}
+								tools={project.tools}
 								image={project.image}
+								featured={featured}
 								key={project.id}
 							/>
 					  ))
 					: searchProject
 					? searchProjectsByTitle.map((project) => (
 							<ProjectSingle
+								id={project.id}
 								title={project.title}
 								category={project.category}
+								description={project.description}
+								tools={project.tools}
 								image={project.image}
+								featured={featured}
 								key={project.id}
 							/>
 					  ))
@@ -132,7 +156,10 @@ const ProjectsGrid = ({limit}) => {
 								id={project.id}
 								title={project.name}
 								category={project.category}
+								description={project.description}
+								tools={project.tools}
 								image={project.image}
+								featured={featured}
 								key={project.id}
 							/>
 					  ))}

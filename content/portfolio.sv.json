@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "siteTitle": "Karez Peshawa | Cinematic Space Portfolio",
+    "siteDescription": "En cinematisk portfolio av Karez Peshawa där frontendutveckling, produkttänk och designmedveten exekvering möts."
+  },
+  "hud": {
+    "statusOnline": "NAVIGATION ONLINE",
+    "statusNominal": "SYSTEM STATUS: NOMINAL",
+    "destination": "DESTINATION",
+    "distance": "DISTANCE",
+    "velocity": "VELOCITY",
+    "course": "COURSE",
+    "integrity": "INTEGRITY",
+    "home": "HOME",
+    "returnToSpace": "RETURN TO SPACE",
+    "languageToggle": "SV / EN",
+    "projectsLabel": "PROJECTS",
+    "aboutLabel": "ABOUT",
+    "contactLabel": "CONTACT"
+  },
+  "cockpit": {
+    "eyebrow": "KAREZ PESHAWA / FRONTEND + PRODUKTMEDVETEN BUILDER",
+    "title": "Jag designar och bygger digitala upplevelser med struktur, precision och verklig leverans bakom dem.",
+    "body": "Jag arbetar i skärningen mellan frontendutveckling, UX-tänk och visuell exekvering. Senast på Reaktion har jag varit med och levererat live kundprojekt från tidig designriktning till produktionsfärdig implementation.",
+    "primaryCta": "Starta navigering",
+    "secondaryCta": "Visa uppdragsprofil",
+    "proof": [
+      "7 månaders praktik förlängd från 3 månader",
+      "Två live kundwebbplatser levererade",
+      "Högsta betyg från handledare"
+    ]
+  },
+  "overview": {
+    "intro": "En guidad portfolioresa genom utvalt arbete, professionell riktning och kontakt.",
+    "projectsLabel": "PROJECTS",
+    "aboutLabel": "ABOUT",
+    "contactLabel": "CONTACT"
+  },
+  "planets": {
+    "projects": {
+      "eyebrow": "Utvalt arbete",
+      "title": "Projekt som visar leveransförmåga, gränssnittsomdöme och teknisk bredd.",
+      "intro": "Urvalet fokuserar på arbete som visar verklig implementation, visuell disciplin och produkttänkande snarare än mängd.",
+      "cards": [
+        {
+          "slug": "hrnytt",
+          "title": "HRnytt",
+          "summary": "Responsiv redesign av en svensk HR-nyhetsplattform, från koncept och Figma-system till frontendimplementation och lansering.",
+          "stack": ["HTML", "CSS", "Figma", "Tillgänglighet"],
+          "type": "Kundarbete",
+          "links": {
+            "label": "Editorial platform rebuild"
+          }
+        },
+        {
+          "slug": "linnea-medical",
+          "title": "Linnea Medical Care",
+          "summary": "Tvåspråkig vårdwebbplats utformad för att förmedla tydlighet, förtroende och lugn samtidigt som praktiska tillgänglighetskrav möts.",
+          "stack": ["Frontend", "UX/UI", "Tvåspråkigt innehåll", "WCAG"],
+          "type": "Kundarbete",
+          "links": {
+            "label": "Healthcare brand and website"
+          }
+        },
+        {
+          "slug": "questos",
+          "title": "QuestOS",
+          "summary": "Produktdesignbidrag till en AI-driven karriärplattform, inklusive mascot-design, onboardingförbättring och förenklad navigation.",
+          "stack": ["Figma", "UX-arkitektur", "Produktdesign"],
+          "type": "Produktbidrag",
+          "links": {
+            "label": "AI product contribution"
+          }
+        },
+        {
+          "slug": "desmal",
+          "title": "DESMAL",
+          "summary": "Fullstack-koncept för modehandel med autentisering, filtrering, kundvagnsflöden och tydligare fokus på gränssnittsstruktur.",
+          "stack": ["React", "Node.js", "MySQL"],
+          "type": "Produktkoncept",
+          "links": {
+            "label": "Commerce concept build"
+          }
+        },
+        {
+          "slug": "snabbsnack",
+          "title": "SnabbSnack",
+          "summary": "Realtidschatt med fokus på levande interaktion, frontendresponsivitet och tydliga meddelandeflöden.",
+          "stack": ["React", "Vite", "WebSockets"],
+          "type": "Övningsprojekt",
+          "links": {
+            "label": "Realtime messaging app"
+          }
+        }
+      ]
+    },
+    "about": {
+      "eyebrow": "Uppdragsprofil",
+      "title": "Frontendutvecklare med stark designkänsla och tydlig vilja att leverera.",
+      "intro": "Jag gör just nu en 7 månader lång praktik på Reaktion där jag har levererat två live kundwebbplatser och arbetat med design, utveckling, tillgänglighet och samarbete i tvärfunktionella team.",
+      "body": "Mitt starkaste arbete finns mellan produktklarhet och frontendexekvering. Jag tycker om att omvandla otydliga behov till gränssnitt som känns strukturerade, lugna och redo för riktiga användare. Jag bidrar också med ett systemtänk kring verktyg och arbetsflöden, och har introducerat AI-stödda arbetssätt som nu används i teamets vardag.",
+      "timelineHeading": "Nylig riktning",
+      "timeline": [
+        "Levererat live kundarbete på Reaktion från designriktning till produktionsfrontend.",
+        "Byggt tvåspråkiga och tillgänglighetsmedvetna gränssnitt för verkliga organisationer.",
+        "Bidragit med produkt- och visuellt tänk utöver ren implementation.",
+        "Introducerat AI-stödda verktyg som nu används i teamets dagliga arbetsflöde."
+      ],
+      "skillsHeading": "Kärnstyrkor",
+      "skills": [
+        "Frontendutveckling",
+        "UX/UI-design",
+        "Responsiva system",
+        "Tillgänglighetsmedveten implementation",
+        "Design-till-kod-flöde",
+        "AI-stödd produktexekvering"
+      ],
+      "factsHeading": "Bevispunkter",
+      "facts": [
+        "Byråmiljö med 25 personer",
+        "Samarbete i leveransteam om 6 personer",
+        "Två live kundlanseringar",
+        "Högsta bedömning från handledare"
+      ]
+    },
+    "contact": {
+      "eyebrow": "Öppen kanal",
+      "title": "Tillgänglig för ambitiösa team som värdesätter frontendkvalitet och designomdöme.",
+      "intro": "Jag söker möjligheter där jag kan bidra till gränssnittskvalitet, implementationsdetaljer och produkttänkande i samma arbete.",
+      "availability": "Just nu öppen för praktik och frontendroller på junior till mellan-nivå, särskilt i team där design och utveckling arbetar nära varandra.",
+      "formHeading": "Inled samtalet",
+      "directLabel": "Direktkontakt",
+      "responseNote": "Den bästa kontakten är konkret: team, roll, produkt och varför matchningen är relevant.",
+      "channels": [
+        "Praktikmöjligheter med starkt frontend- och UX-ansvar",
+        "Frontendroller på junior till mellan-nivå med nära designsamarbete",
+        "Utvalda freelance- eller projektbaserade digitala produktuppdrag"
+      ]
+    }
+  },
+  "common": {
+    "liveSite": "Live site",
+    "github": "GitHub",
+    "linkedin": "LinkedIn",
+    "email": "E-post",
+    "phone": "Telefon"
+  },
+  "contact": {
+    "email": "karezpeshawa75@gmail.com",
+    "phone": "+46 70 752 8875",
+    "linkedinUrl": "https://www.linkedin.com/in/karez-peshawa/",
+    "githubUrl": "https://github.com/KarezP"
+  },
+  "references": {
+    "quoteLabel": "Handledarbedömning",
+    "quote": "Mycket nyfiken, engagerad och kapabel junior frontendutvecklare med starkt ansvarstagande för lärande och leverans."
+  }
+}

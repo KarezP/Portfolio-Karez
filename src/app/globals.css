@@ -58,10 +58,101 @@ button {
   }
 }
 
+@keyframes intro-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes intro-fade-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes intro-fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes scan-lines-down {
+  from {
+    transform: translateY(-6px);
+  }
+
+  to {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes arrow-shift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(4px);
+  }
+}
+
 .radar-spin {
   animation: radar-spin 4s linear infinite;
 }
 
 .hud-pulse {
   animation: hud-pulse 2.6s ease-in-out infinite;
+}
+
+.intro-fade-up {
+  animation: intro-fade-up 1s ease forwards;
+}
+
+.intro-fade-right {
+  animation: intro-fade-right 1s ease forwards;
+}
+
+.intro-fade-scale {
+  animation: intro-fade-scale 1s ease forwards;
+}
+
+.scan-lines-down {
+  animation: scan-lines-down 4s linear infinite alternate;
+}
+
+.orbit-spin {
+  animation: orbit-spin 18s linear infinite;
+}
+
+.arrow-shift {
+  animation: arrow-shift 1.5s ease-in-out infinite;
 }

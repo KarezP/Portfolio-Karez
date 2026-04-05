@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { getUI, getPortfolio, type ShellLang, type UILabels } from './shellContent';
+import { useJourneyStore } from '../../stores/useJourneyStore';
 
 const TAU = Math.PI * 2;
-const STAR_COUNT = 480;
+const STAR_COUNT = 680;
 const WORLD_DEPTH = 240;
 const STARFIELD_WIDTH = 4.4;
 const STARFIELD_HEIGHT = 2.4;
@@ -12,10 +14,18 @@ const PANEL_POSITION = {
   projects: { justify: 'justify-end', panelShift: 'mr-2', width: 'max-w-[52rem]', panelWidth: 832 },
   about: { justify: 'justify-center', panelShift: '', width: 'max-w-[46rem]', panelWidth: 736 },
   contact: { justify: 'justify-start', panelShift: 'ml-2', width: 'max-w-[52rem]', panelWidth: 832 },
+  skills: { justify: 'justify-end', panelShift: 'mr-2', width: 'max-w-[46rem]', panelWidth: 736 },
 } as const;
 
-type PlanetId = 'projects' | 'about' | 'contact';
+type PlanetId = 'projects' | 'about' | 'contact' | 'skills';
 type SceneMode = 'idle' | 'focus' | 'return';
+
+type ProjectDetail = {
+  description: string;
+  role: string;
+  duration: string;
+  highlights: string[];
+};
 
 type ProjectCard = {
   slug: string;
@@ -23,12 +33,20 @@ type ProjectCard = {
   summary: string;
   stack: string[];
   type: string;
+  detail: ProjectDetail | null;
+  liveUrl?: string;
+  screenshotUrl?: string;
 };
 
 type PlanetContent = {
   eyebrow: string;
   title: string;
   intro: string;
+};
+
+type SkillCategory = {
+  label: string;
+  items: string[];
 };
 
 type PortfolioData = {
@@ -49,6 +67,9 @@ type PortfolioData = {
       directLabel: string;
       responseNote: string;
       channels: string[];
+    };
+    skills: PlanetContent & {
+      categories: SkillCategory[];
     };
   };
   contact: {
@@ -147,107 +168,18 @@ declare global {
   }
 }
 
-const portfolio: PortfolioData = {
-  planets: {
-    projects: {
-      eyebrow: 'Utvalt arbete',
-      title: 'Projekt som visar leveransförmåga, gränssnittsomdöme och teknisk bredd.',
-      intro:
-        'Urvalet fokuserar på arbete som visar verklig implementation, visuell disciplin och produkttänkande snarare än mängd.',
-      cards: [
-        {
-          slug: 'hrnytt',
-          title: 'HRnytt',
-          summary:
-            'Responsiv redesign av en svensk HR-nyhetsplattform, från koncept och Figma-system till frontendimplementation och lansering.',
-          stack: ['HTML', 'CSS', 'Figma', 'Tillgänglighet'],
-          type: 'Kundarbete',
-        },
-        {
-          slug: 'linnea-medical',
-          title: 'Linnea Medical Care',
-          summary:
-            'Tvåspråkig vårdwebbplats utformad för att förmedla tydlighet, förtroende och lugn samtidigt som praktiska tillgänglighetskrav möts.',
-          stack: ['Frontend', 'UX/UI', 'Tvåspråkigt innehåll', 'WCAG'],
-          type: 'Kundarbete',
-        },
-        {
-          slug: 'questos',
-          title: 'QuestOS',
-          summary:
-            'Produktdesignbidrag till en AI-driven karriärplattform, inklusive mascot-design, onboardingförbättring och förenklad navigation.',
-          stack: ['Figma', 'UX-arkitektur', 'Produktdesign'],
-          type: 'Produktbidrag',
-        },
-      ],
-    },
-    about: {
-      eyebrow: 'Uppdragsprofil',
-      title: 'Frontendutvecklare med stark designkänsla och tydlig vilja att leverera.',
-      intro:
-        'Jag gör just nu en 7 månader lång praktik på Reaktion där jag har levererat två live kundwebbplatser och arbetat med design, utveckling, tillgänglighet och samarbete i tvärfunktionella team.',
-      body:
-        'Mitt starkaste arbete finns mellan produktklarhet och frontendexekvering. Jag tycker om att omvandla otydliga behov till gränssnitt som känns strukturerade, lugna och redo för riktiga användare.',
-      timelineHeading: 'Nylig riktning',
-      timeline: [
-        'Levererat live kundarbete på Reaktion från designriktning till produktionsfrontend.',
-        'Byggt tvåspråkiga och tillgänglighetsmedvetna gränssnitt för verkliga organisationer.',
-        'Bidragit med produkt- och visuellt tänk utöver ren implementation.',
-      ],
-      skillsHeading: 'Kärnstyrkor',
-      skills: [
-        'Frontendutveckling',
-        'UX/UI-design',
-        'Responsiva system',
-        'Tillgänglighetsmedveten implementation',
-        'Design-till-kod-flöde',
-      ],
-      factsHeading: 'Bevispunkter',
-      facts: ['Byråmiljö med 25 personer', 'Samarbete i leveransteam om 6 personer', 'Två live kundlanseringar'],
-    },
-    contact: {
-      eyebrow: 'Öppen kanal',
-      title: 'Tillgänglig för ambitiösa team som värdesätter frontendkvalitet och designomdöme.',
-      intro:
-        'Jag söker möjligheter där jag kan bidra till gränssnittskvalitet, implementationsdetaljer och produkttänkande i samma arbete.',
-      availability:
-        'Just nu öppen för praktik och frontendroller på junior till mellan-nivå, särskilt i team där design och utveckling arbetar nära varandra.',
-      formHeading: 'Inled samtalet',
-      directLabel: 'Direktkontakt',
-      responseNote:
-        'Den bästa kontakten är konkret: team, roll, produkt och varför matchningen är relevant.',
-      channels: [
-        'Praktikmöjligheter med starkt frontend- och UX-ansvar',
-        'Frontendroller på junior till mellan-nivå med nära designsamarbete',
-        'Utvalda freelance- eller projektbaserade digitala produktuppdrag',
-      ],
-    },
-  },
-  contact: {
-    email: 'karezpeshawa75@gmail.com',
-    phone: '+46 70 752 8875',
-    linkedinUrl: 'https://www.linkedin.com/in/karez-peshawa/',
-    githubUrl: 'https://github.com/KarezP',
-  },
-  references: {
-    quoteLabel: 'Handledarbedömning',
-    quote:
-      'Mycket nyfiken, engagerad och kapabel junior frontendutvecklare med starkt ansvarstagande för lärande och leverans.',
-  },
-};
-
 const planetConfig: PlanetConfig[] = [
   {
     id: 'projects',
     name: 'PROJECT CLUSTER',
-    description: 'Selected work and shipped delivery',
+    description: 'Utvalt arbete och levererade projekt',
     colorA: '#e9d5ff',
     colorB: '#9333ea',
     glow: 'rgba(192,132,252,0.36)',
-    baseRadius: 46,
-    worldX: 435,
-    worldY: -95,
-    worldZ: -420,
+    baseRadius: 44,
+    worldX: 300,
+    worldY: -40,
+    worldZ: -430,
     textureSeed: 2.2,
     spinSpeed: 0.34,
     axialTilt: -0.18,
@@ -256,14 +188,14 @@ const planetConfig: PlanetConfig[] = [
   {
     id: 'about',
     name: 'EXPERIENCE',
-    description: 'Background, profile and trajectory',
+    description: 'Bakgrund, profil och riktning',
     colorA: '#93c5fd',
     colorB: '#2563eb',
     glow: 'rgba(96,165,250,0.3)',
-    baseRadius: 42,
-    worldX: -430,
-    worldY: 58,
-    worldZ: -390,
+    baseRadius: 40,
+    worldX: -340,
+    worldY: 100,
+    worldZ: -540,
     textureSeed: 4.6,
     spinSpeed: 0.26,
     axialTilt: 0.12,
@@ -272,51 +204,38 @@ const planetConfig: PlanetConfig[] = [
   {
     id: 'contact',
     name: 'CONTACT BEACON',
-    description: 'Open channel for direct contact',
+    description: 'Oppen kanal for direktkontakt',
     colorA: '#fde047',
     colorB: '#d97706',
     glow: 'rgba(251,191,36,0.32)',
-    baseRadius: 40,
-    worldX: 330,
-    worldY: 165,
-    worldZ: -455,
+    baseRadius: 36,
+    worldX: 390,
+    worldY: 175,
+    worldZ: -620,
     textureSeed: 7.1,
     spinSpeed: 0.41,
     axialTilt: -0.1,
     hologramTone: 'amber',
   },
-];
-
-const decorativeBodies: DecorativeBody[] = [
   {
-    id: 'home-station',
-    name: 'HOME STATION',
-    colorA: '#fb923c',
-    colorB: '#9a3412',
-    glow: 'rgba(251,146,60,0.36)',
-    baseRadius: 54,
-    worldX: 8,
-    worldY: -8,
-    worldZ: -360,
-    textureSeed: 1.2,
-    spinSpeed: 0.22,
-    axialTilt: 0.08,
-  },
-  {
-    id: 'skill-galaxy',
+    id: 'skills',
     name: 'SKILL GALAXY',
+    description: 'Tekniska fardigheter och verktyg',
     colorA: '#6ee7b7',
     colorB: '#059669',
     glow: 'rgba(52,211,153,0.32)',
-    baseRadius: 36,
-    worldX: -420,
-    worldY: -150,
-    worldZ: -440,
+    baseRadius: 30,
+    worldX: -310,
+    worldY: -155,
+    worldZ: -280,
     textureSeed: 5.4,
     spinSpeed: 0.3,
     axialTilt: -0.12,
+    hologramTone: 'sky',
   },
 ];
+
+const decorativeBodies: DecorativeBody[] = [];
 
 function easeInOutCubic(t: number) {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -348,7 +267,7 @@ function makeStars(): Star[] {
       x: (Math.random() - 0.5) * STARFIELD_WIDTH,
       y: (Math.random() - 0.5) * STARFIELD_HEIGHT,
       z: Math.random() * WORLD_DEPTH,
-      size: Math.random() * 2,
+      size: Math.random() * 2.2 + 0.15,
       alpha: layer === 0 ? 0.95 : layer === 1 ? 0.72 : 0.44,
       layerDepth,
       twinkleSeed: Math.random() * 1000,
@@ -410,13 +329,26 @@ function drawPlanet(
   ctx.save();
   ctx.translate(screen.x, screen.y);
 
-  const glow = ctx.createRadialGradient(0, 0, screen.radius * 0.9, 0, 0, screen.radius * 1.4);
+  // Outer atmospheric halo
+  ctx.save();
+  ctx.globalAlpha = highlight * 0.14 + 0.04;
+  const haloGrad = ctx.createRadialGradient(0, 0, screen.radius * 0.5, 0, 0, screen.radius * 3.5);
+  haloGrad.addColorStop(0, planet.glow);
+  haloGrad.addColorStop(0.35, planet.glow.replace(/[\d.]+\)$/, '0.06)'));
+  haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = haloGrad;
+  ctx.beginPath();
+  ctx.arc(0, 0, screen.radius * 3.5, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  const glow = ctx.createRadialGradient(0, 0, screen.radius * 0.9, 0, 0, screen.radius * 2.4);
   glow.addColorStop(0, planet.glow.replace(/0\.\d+\)/, `${0.2 + arrivalGlow * 0.13})`));
   glow.addColorStop(0.5, planet.glow.replace(/0\.\d+\)/, '0.1)'));
   glow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(0, 0, screen.radius * 1.4, 0, TAU);
+  ctx.arc(0, 0, screen.radius * 2.4, 0, TAU);
   ctx.fill();
 
   const g = ctx.createRadialGradient(-screen.radius * 0.3, -screen.radius * 0.3, screen.radius * 0.1, 0, 0, screen.radius);
@@ -534,6 +466,185 @@ function HologramFrame({
   );
 }
 
+function ProjectsHologramContent({
+  section,
+  sectionLabelTone,
+  closeButton,
+  ui,
+}: {
+  section: PortfolioData['planets']['projects'];
+  sectionLabelTone: string;
+  closeButton: React.ReactNode;
+  ui: UILabels;
+}) {
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [viewKey, setViewKey] = useState(0);
+
+  const selectedCard = selectedSlug
+    ? section.cards.find((c) => c.slug === selectedSlug) ?? null
+    : null;
+
+  const handleSelect = (slug: string) => {
+    setSelectedSlug(slug);
+    setViewKey((k) => k + 1);
+  };
+
+  const handleBack = () => {
+    setSelectedSlug(null);
+    setViewKey((k) => k + 1);
+  };
+
+  if (selectedCard?.detail) {
+    const { detail } = selectedCard;
+    return (
+      <div className="space-y-6 pb-12 text-white/70 leading-relaxed">
+        {closeButton}
+        <div key={`detail-${viewKey}`} className="animate-holo-drill-in pt-12">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="group mb-6 flex items-center gap-2.5 border border-cyan-400/30 px-4 py-2 text-xs uppercase tracking-[0.28em] text-cyan-400/70 transition-colors hover:bg-cyan-400/10 hover:text-cyan-400"
+          >
+            <span className="inline-block transition-transform group-hover:-translate-x-0.5">&lsaquo;</span>
+            {ui.backToProjects}
+          </button>
+
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-3xl font-thin tracking-wide text-white">{selectedCard.title}</h2>
+            <span className="shrink-0 border border-cyan-400/20 px-2 py-0.5 text-[11px] text-cyan-400/60">
+              {selectedCard.type}
+            </span>
+          </div>
+          {selectedCard.liveUrl ? (
+            <a
+              href={selectedCard.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 border border-cyan-400/30 bg-cyan-400/5 px-4 py-2 text-xs uppercase tracking-[0.28em] text-cyan-400/80 transition-colors hover:bg-cyan-400/15 hover:text-cyan-300"
+            >
+              {ui.liveSite}
+              <span className="text-[10px]">&nearr;</span>
+            </a>
+          ) : null}
+          <div className="mt-4 h-px w-16 bg-gradient-to-r from-cyan-400/60 to-transparent" />
+
+          {selectedCard.screenshotUrl ? (
+            <div className="mt-5">
+              <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50 mb-2">{ui.siteScan}</div>
+              <div className="relative overflow-hidden border border-cyan-400/20">
+                <img
+                  src={selectedCard.screenshotUrl}
+                  alt={`${selectedCard.title} screenshot`}
+                  className="w-full object-cover object-top"
+                  style={{ maxHeight: '220px' }}
+                />
+                <div className="pointer-events-none absolute inset-0" style={{ background: 'repeating-linear-gradient(180deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 1px, transparent 1px, transparent 4px)' }} />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="mt-5 space-y-4">
+            {detail.description.split('\n\n').map((para, i) => (
+              <p key={i} className="text-sm leading-7 text-white/70">{para}</p>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="border border-cyan-400/15 bg-cyan-400/5 p-4">
+              <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50">{ui.role}</div>
+              <div className="mt-1.5 text-sm text-white">{detail.role}</div>
+            </div>
+            <div className="border border-cyan-400/15 bg-cyan-400/5 p-4">
+              <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50">{ui.duration}</div>
+              <div className="mt-1.5 text-sm text-white">{detail.duration}</div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50">{ui.highlights}</div>
+            <div className="mt-2 h-px w-10 bg-cyan-400/30" />
+            <ul className="mt-3 space-y-2.5">
+              {detail.highlights.map((item, i) => (
+                <li key={i} className="flex items-start gap-2.5 text-sm leading-7 text-white/70">
+                  <span className="mt-2 block h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400/60" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-6">
+            <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50">{ui.tech}</div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {selectedCard.stack.map((item) => (
+                <span key={item} className="text-xs text-cyan-400/60">{item}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-12 text-white/70 leading-relaxed">
+      {closeButton}
+      <div key={`list-${viewKey}`} className={viewKey > 0 ? 'animate-holo-drill-back' : ''}>
+        <div className="pt-12">
+          <div className={'mb-4 text-xs uppercase tracking-[0.3em] ' + sectionLabelTone}>{section.eyebrow}</div>
+          <h2 className="mb-6 text-3xl font-thin tracking-wide text-white">{section.title}</h2>
+          <p className="text-sm leading-7 text-white/70">{section.intro}</p>
+        </div>
+        <div className="mt-6 grid max-h-[56vh] gap-4 overflow-auto pr-1">
+          {section.cards.map((card) => (
+            <div key={card.slug} className="border-l-2 border-cyan-400/40 pl-4">
+              <div className="flex items-center justify-between gap-3">
+                {card.detail ? (
+                  <button
+                    type="button"
+                    onClick={() => handleSelect(card.slug)}
+                    className="group flex items-center gap-2 text-left"
+                  >
+                    <h3 className="text-lg text-white transition-colors hover:text-cyan-300">{card.title}</h3>
+                    <span className="text-sm text-cyan-400/0 transition-colors group-hover:text-cyan-400/60">&rsaquo;</span>
+                  </button>
+                ) : (
+                  <h3 className="text-lg text-white">{card.title}</h3>
+                )}
+                <span className="border border-cyan-400/20 px-2 py-0.5 text-[11px] text-cyan-400/60">
+                  {card.type}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-white/60">{card.summary}</p>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {card.stack.map((item) => (
+                  <span key={item} className="text-xs text-cyan-400/60">
+                    {item}
+                  </span>
+                ))}
+                {card.liveUrl ? (
+                  <>
+                    <span className="text-xs text-white/20">|</span>
+                    <a
+                      href={card.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-cyan-400/70 transition-colors hover:text-cyan-300"
+                    >
+                      {ui.visitLink}
+                    </a>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function SectionPanel({
   sectionId,
   onClose,
@@ -543,9 +654,14 @@ function SectionPanel({
   onClose: () => void;
   visible: boolean;
 }) {
+  const language = useJourneyStore((s) => s.language);
+
   if (!sectionId) {
     return null;
   }
+
+  const portfolio = getPortfolio(language as ShellLang) as PortfolioData;
+  const ui = getUI(language as ShellLang);
 
   const tone = planetConfig.find((planet) => planet.id === sectionId)?.hologramTone || 'sky';
   const sectionLabelTone = tone === 'amber' ? 'text-amber-300/70' : tone === 'fuchsia' ? 'text-fuchsia-300/70' : 'text-cyan-400/60';
@@ -553,9 +669,9 @@ function SectionPanel({
   const closeButton = (
     <button
       onClick={onClose}
-      className="absolute right-4 top-4 border border-cyan-400/40 px-4 py-2 text-xs tracking-widest text-cyan-400 transition-colors hover:bg-cyan-400/10"
+      className="absolute right-4 top-4 z-20 border border-cyan-400/40 px-4 py-2 text-xs tracking-widest text-cyan-400 transition-colors hover:bg-cyan-400/10"
     >
-      CLOSE
+      {ui.close}
     </button>
   );
 
@@ -563,34 +679,12 @@ function SectionPanel({
     const section = portfolio.planets.projects;
     return (
       <HologramFrame tone={tone} visible={visible}>
-        <div className="space-y-6 pb-12 text-white/70 leading-relaxed">
-          {closeButton}
-          <div className="pt-12">
-            <div className={'mb-4 text-xs uppercase tracking-[0.3em] ' + sectionLabelTone}>{section.eyebrow}</div>
-            <h2 className="mb-6 text-3xl font-thin tracking-wide text-white">{section.title}</h2>
-            <p className="text-sm leading-7 text-white/70">{section.intro}</p>
-          </div>
-          <div className="grid max-h-[56vh] gap-4 overflow-auto pr-1">
-            {section.cards.map((card) => (
-              <div key={card.slug} className="border-l-2 border-cyan-400/40 pl-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-lg text-white">{card.title}</h3>
-                  <span className="border border-cyan-400/20 px-2 py-0.5 text-[11px] text-cyan-400/60">
-                    {card.type}
-                  </span>
-                </div>
-                <p className="mt-2 text-sm text-white/60">{card.summary}</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {card.stack.map((item) => (
-                    <span key={item} className="text-xs text-cyan-400/60">
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProjectsHologramContent
+          section={section}
+          sectionLabelTone={sectionLabelTone}
+          closeButton={closeButton}
+          ui={ui}
+        />
       </HologramFrame>
     );
   }
@@ -612,7 +706,7 @@ function SectionPanel({
               <div className={'mb-3 text-sm tracking-wider ' + subheadingTone}>{section.timelineHeading}</div>
               <ul className="space-y-2 text-sm text-white/70">
                 {section.timeline.map((item) => (
-                  <li key={item}>• {item}</li>
+                  <li key={item}>&bull; {item}</li>
                 ))}
               </ul>
             </div>
@@ -621,7 +715,7 @@ function SectionPanel({
                 <div className={'mb-3 text-sm tracking-wider ' + subheadingTone}>{section.skillsHeading}</div>
                 <div className="flex flex-wrap gap-2 text-sm text-white/70">
                   {section.skills.map((item) => (
-                    <span key={item}>• {item}</span>
+                    <span key={item}>&bull; {item}</span>
                   ))}
                 </div>
               </div>
@@ -629,7 +723,7 @@ function SectionPanel({
                 <div className={'mb-3 text-sm tracking-wider ' + subheadingTone}>{section.factsHeading}</div>
                 <ul className="space-y-2 text-sm text-white/70">
                   {section.facts.map((item) => (
-                    <li key={item}>• {item}</li>
+                    <li key={item}>&bull; {item}</li>
                   ))}
                 </ul>
               </div>
@@ -637,7 +731,35 @@ function SectionPanel({
           </div>
           <div className="border-l-2 border-cyan-400/40 pl-4 text-sm text-white/70">
             <div className="font-medium">{portfolio.references.quoteLabel}</div>
-            <p className="mt-2 leading-6">“{portfolio.references.quote}”</p>
+            <p className="mt-2 leading-6">&ldquo;{portfolio.references.quote}&rdquo;</p>
+          </div>
+        </div>
+      </HologramFrame>
+    );
+  }
+
+  if (sectionId === 'skills') {
+    const section = portfolio.planets.skills;
+    return (
+      <HologramFrame tone={tone} visible={visible}>
+        <div className="space-y-6 pb-12 text-white/70 leading-relaxed">
+          {closeButton}
+          <div className="pt-12">
+            <div className={'mb-4 text-xs uppercase tracking-[0.3em] ' + sectionLabelTone}>{section.eyebrow}</div>
+            <h2 className="mb-6 text-3xl font-thin tracking-wide text-white">{section.title}</h2>
+            <p className="text-sm leading-7 text-white/70">{section.intro}</p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            {section.categories.map((cat) => (
+              <div key={cat.label} className="border border-cyan-400/15 bg-cyan-400/5 p-4">
+                <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50">{cat.label}</div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {cat.items.map((item) => (
+                    <span key={item} className="border border-cyan-400/20 bg-cyan-400/5 px-2.5 py-1 text-xs text-white/80">{item}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </HologramFrame>
@@ -659,7 +781,7 @@ function SectionPanel({
           <div className={'mb-3 text-sm tracking-wider ' + subheadingTone}>{section.formHeading}</div>
           <div className="space-y-3 text-sm text-white/70">
             {section.channels.map((item) => (
-              <div key={item}>• {item}</div>
+              <div key={item}>&bull; {item}</div>
             ))}
           </div>
         </div>
@@ -859,6 +981,11 @@ function CaptainIntro({
 }: {
   onBegin: () => void;
 }) {
+  const language = useJourneyStore((s) => s.language);
+  const setLanguage = useJourneyStore((s) => s.setLanguage);
+  const ui = getUI(language as ShellLang);
+  const portfolio = getPortfolio(language as ShellLang) as PortfolioData;
+
   return (
     <div className="absolute inset-0 z-20 bg-[#0a0e1a]">
       <div className="pointer-events-none absolute inset-0 opacity-5 [background-image:repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(6,182,212,0.05)_2px,rgba(6,182,212,0.05)_4px)]" />
@@ -871,18 +998,27 @@ function CaptainIntro({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/70 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
 
-      <div className="pointer-events-none absolute inset-x-8 top-6 flex items-center justify-between font-mono text-xs uppercase tracking-[0.3em] text-cyan-400/60">
+      <div className="absolute inset-x-8 top-6 z-30 flex items-center justify-between font-mono text-xs uppercase tracking-[0.3em] text-cyan-400/60">
         <div className="flex items-center gap-3">
           <span className="h-2 w-2 rounded-full bg-cyan-400 hud-pulse" />
-          <span>Navigation online</span>
+          <span>{ui.navOnline}</span>
         </div>
-        <div>Destination: Home Station</div>
+        <div className="flex items-center gap-4">
+          <span>{ui.destination}</span>
+          <button
+            type="button"
+            onClick={() => setLanguage(language === 'sv' ? 'en' : 'sv')}
+            className="pointer-events-auto cursor-pointer font-mono text-[10px] tracking-[0.28em] text-cyan-400/70 transition hover:text-cyan-400"
+          >
+            {language === 'sv' ? 'EN' : 'SV'}
+          </button>
+        </div>
       </div>
 
       <div className="pointer-events-none absolute inset-x-8 bottom-5 grid grid-cols-3 font-mono text-xs uppercase tracking-widest text-cyan-400/40">
-        <div>System status: nominal</div>
-        <div className="text-center">Focus</div>
-        <div className="text-right">Distance: 0 LY</div>
+        <div>{ui.systemStatus}</div>
+        <div className="text-center">{ui.focus}</div>
+        <div className="text-right">{ui.distance}</div>
       </div>
 
       <div className="pointer-events-auto relative z-10 mx-auto grid h-full w-full max-w-7xl grid-cols-1 items-center gap-8 px-8 py-24 lg:grid-cols-3">
@@ -896,7 +1032,7 @@ function CaptainIntro({
           <div className="flex items-center justify-center gap-3 lg:justify-start">
             <div className="h-px w-8 bg-gradient-to-r from-transparent to-cyan-400/40" />
             <span className="font-mono text-xs tracking-[0.4em] text-cyan-400/60">
-              FRONT-END DEVELOPER &amp; UX/UI DESIGNER
+              {ui.title}
             </span>
             <div className="h-px w-8 bg-gradient-to-l from-transparent to-cyan-400/40" />
           </div>
@@ -913,28 +1049,28 @@ function CaptainIntro({
           <div className="relative mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 blur-xl" />
               <p className="relative mx-auto max-w-xl text-base leading-relaxed text-white/80 lg:mx-0 lg:text-lg">
-                Välkommen ombord. Jag designar, bygger och levererar digitala upplevelser från Figma-wireframes genom utveckling till produktion.
+                {ui.introWelcome}
               </p>
           </div>
 
           <div className="flex items-center justify-center gap-6 lg:justify-start">
             <div className="text-center">
-              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">7 mån</div>
-              <div className="text-[10px] tracking-[0.18em] text-white/40">PRAKTIK REAKTION</div>
+              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">{ui.statInternship}</div>
+              <div className="text-[10px] tracking-[0.18em] text-white/40">{ui.statInternshipLabel}</div>
             </div>
 
             <div className="h-10 w-px bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent" />
 
             <div className="text-center">
-              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">2 live</div>
-              <div className="text-[10px] tracking-[0.18em] text-white/40">KUNDSAJTER SHIPADE</div>
+              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">{ui.statSites}</div>
+              <div className="text-[10px] tracking-[0.18em] text-white/40">{ui.statSitesLabel}</div>
             </div>
 
             <div className="h-10 w-px bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent" />
 
             <div className="text-center">
-              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">A+</div>
-              <div className="text-[10px] tracking-[0.18em] text-white/40">HANDLEDARBEDÖMNING</div>
+              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">{ui.statGrade}</div>
+              <div className="text-[10px] tracking-[0.18em] text-white/40">{ui.statGradeLabel}</div>
             </div>
           </div>
 
@@ -947,8 +1083,8 @@ function CaptainIntro({
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-cyan-400/20 blur-lg transition-all group-hover:blur-xl" />
               <div className="relative border border-cyan-400/40 bg-black/50 px-10 py-3 backdrop-blur-sm transition-all group-hover:border-cyan-400/70 group-hover:bg-cyan-400/10">
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm tracking-[0.3em] text-cyan-400">BEGIN NAVIGATION</span>
-                  <span className="arrow-shift text-cyan-400">→</span>
+                  <span className="font-mono text-sm tracking-[0.3em] text-cyan-400">{ui.beginNav}</span>
+                  <span className="arrow-shift text-cyan-400">&rarr;</span>
                 </div>
               </div>
               <div className="absolute left-0 top-0 h-2 w-2 border-l border-t border-cyan-400/60" />
@@ -965,10 +1101,10 @@ function CaptainIntro({
             <div className="relative border border-cyan-400/20 bg-black/30 p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
               <div className="mb-3 flex items-center gap-2">
                 <div className="h-3 w-1 bg-cyan-400" />
-                <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">PROOF SIGNAL</h3>
+                <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">{ui.proofSignal}</h3>
               </div>
               <p className="text-sm leading-relaxed text-white/60">
-                Mycket nyfiken, engagerad och kapabel frontendutvecklare med starkt ansvarstagande för lärande och leverans.
+                {portfolio.references.quote}
               </p>
             </div>
           </div>
@@ -978,10 +1114,10 @@ function CaptainIntro({
             <div className="relative border border-cyan-400/20 bg-black/30 p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
               <div className="mb-3 flex items-center gap-2">
                 <div className="h-3 w-1 bg-purple-400" />
-                <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">NAVIGATION NOTE</h3>
+                <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">{ui.navGuide}</h3>
               </div>
               <p className="text-sm leading-relaxed text-white/60">
-                Planeterna i rymden håller sektionerna i portfolion. Välj en destination för att resa dit och öppna dess holografiska informationslager.
+                {ui.introNavNote}
               </p>
             </div>
           </div>
@@ -991,9 +1127,9 @@ function CaptainIntro({
             <div className="relative border border-cyan-400/20 bg-black/30 p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
               <div className="mb-3 flex items-center gap-2">
                 <div className="h-3 w-1 bg-orange-400" />
-                <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">CURRENT MODE</h3>
+                <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">{ui.currentMode}</h3>
               </div>
-              <p className="font-mono text-sm uppercase tracking-[0.28em] text-white/74">BRIDGE BRIEFING ACTIVE</p>
+              <p className="font-mono text-sm uppercase tracking-[0.28em] text-white/74">{ui.bridgeBriefing}</p>
             </div>
           </div>
         </div>
@@ -1016,6 +1152,10 @@ export default function PortfolioExperienceShell() {
   const activePlanetIdRef = useRef<PlanetId | null>(null);
   const hoverPlanetIdRef = useRef<PlanetId | null>(null);
   const introActive = !activePlanetId && sceneMode === 'idle' && !introDismissed;
+
+  const language = useJourneyStore((s) => s.language);
+  const setLanguage = useJourneyStore((s) => s.setLanguage);
+  const ui = getUI(language as ShellLang);
 
   useEffect(() => {
     activePlanetIdRef.current = activePlanetId;
@@ -1149,6 +1289,21 @@ export default function PortfolioExperienceShell() {
       state.flash *= 0.96;
 
       ctx.fillStyle = '#020510';
+      ctx.fillRect(0, 0, width, height);
+
+      // Nebula gradients
+      const neb1 = ctx.createRadialGradient(width * 0.72, height * 0.28, 0, width * 0.72, height * 0.28, width * 0.48);
+      neb1.addColorStop(0, 'rgba(88, 28, 135, 0.07)');
+      neb1.addColorStop(0.5, 'rgba(88, 28, 135, 0.025)');
+      neb1.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb1;
+      ctx.fillRect(0, 0, width, height);
+
+      const neb2 = ctx.createRadialGradient(width * 0.18, height * 0.72, 0, width * 0.18, height * 0.72, width * 0.38);
+      neb2.addColorStop(0, 'rgba(6, 182, 212, 0.045)');
+      neb2.addColorStop(0.5, 'rgba(6, 182, 212, 0.015)');
+      neb2.addColorStop(1, 'transparent');
+      ctx.fillStyle = neb2;
       ctx.fillRect(0, 0, width, height);
 
       for (const star of stars) {
@@ -1305,22 +1460,29 @@ export default function PortfolioExperienceShell() {
                   <div className="pointer-events-none absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(6, 182, 212, 0.05) 2px, rgba(6, 182, 212, 0.05) 4px)' }} />
 
                   <div className="pointer-events-none absolute left-8 top-8">
-                    <div className="text-xs tracking-[0.3em] text-cyan-400/60">GALAXY OVERVIEW</div>
+                    <div className="text-xs tracking-[0.3em] text-cyan-400/60">{ui.galaxyOverview}</div>
                     <div className="h-[1px] w-16 bg-cyan-400/40" />
                     <div className="h-16 w-[1px] bg-cyan-400/40" />
                   </div>
 
-                  <div className="pointer-events-none absolute right-8 top-8 text-right">
-                    <div className="text-xs tracking-[0.3em] text-cyan-400/60">DEEP SPACE SCAN</div>
-                    <div className="absolute right-0 top-8 h-[1px] w-16 bg-cyan-400/40" />
-                    <div className="absolute right-0 top-8 h-16 w-[1px] bg-cyan-400/40" />
+                  <div className="absolute right-8 top-8 z-30 flex items-center gap-4 text-right">
+                    <div className="pointer-events-none text-xs tracking-[0.3em] text-cyan-400/60">{ui.deepSpaceScan}</div>
+                    <button
+                      type="button"
+                      onClick={() => setLanguage(language === 'sv' ? 'en' : 'sv')}
+                      className="pointer-events-auto cursor-pointer font-mono text-[10px] tracking-[0.28em] text-cyan-400/70 transition hover:text-cyan-400"
+                    >
+                      {language === 'sv' ? 'EN' : 'SV'}
+                    </button>
+                    <div className="pointer-events-none absolute right-0 top-8 h-[1px] w-16 bg-cyan-400/40" />
+                    <div className="pointer-events-none absolute right-0 top-8 h-16 w-[1px] bg-cyan-400/40" />
                   </div>
 
                   <div className="pointer-events-none absolute bottom-8 left-8">
                     <div className="h-16 w-[1px] bg-cyan-400/40" />
                     <div className="h-[1px] w-16 bg-cyan-400/40" />
-                    <div className="mt-2 text-xs tracking-[0.3em] text-cyan-400/60">NAVIGATION</div>
-                    <div className="text-xs text-cyan-400/40">Moving into parallel paths</div>
+                    <div className="mt-2 text-xs tracking-[0.3em] text-cyan-400/60">{ui.navigation}</div>
+                    <div className="text-xs text-cyan-400/40">{ui.navSubtext}</div>
                   </div>
 
                   <div className="pointer-events-none absolute bottom-8 right-8">
@@ -1336,7 +1498,7 @@ export default function PortfolioExperienceShell() {
                       <div className="absolute left-[28%] top-[62%] h-2.5 w-2.5 rounded-full bg-sky-400 animate-pulse" />
                       <div className="absolute left-[62%] top-[72%] h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse" />
                     </div>
-                    <div className="mt-2 text-center text-xs tracking-[0.3em] text-cyan-400/60">RADAR</div>
+                    <div className="mt-2 text-center text-xs tracking-[0.3em] text-cyan-400/60">{ui.radar}</div>
                   </div>
                 </>
               ) : null}
@@ -1348,7 +1510,7 @@ export default function PortfolioExperienceShell() {
                     onClick={() => setIntroDismissed(false)}
                     className="rounded-full border border-cyan-300/20 bg-slate-950/55 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.3em] text-cyan-200/80 backdrop-blur-sm transition hover:border-cyan-300/40 hover:bg-cyan-400/10"
                   >
-                    Back to intro
+                    {ui.backToIntro}
                   </button>
                 </div>
               ) : null}
@@ -1361,7 +1523,7 @@ export default function PortfolioExperienceShell() {
                 }
 
                 const labelText =
-                  planetId === 'projects' ? 'PROJECTS' : planetId === 'about' ? 'ABOUT' : 'CONTACT';
+                  planetId === 'projects' ? ui.projects : planetId === 'about' ? ui.about : planetId === 'skills' ? ui.skills : ui.contact;
                 const labelTop = screen.y < viewportSize.height * 0.3 ? 'top-full mt-3' : 'bottom-full mb-3';
 
                 return (
@@ -1386,7 +1548,7 @@ export default function PortfolioExperienceShell() {
                       <span className="sr-only">{`Open ${config.name}`}</span>
                     </button>
                     <div className={'pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 ' + labelTop}>
-                      <div className="rounded-full border border-cyan-400/20 bg-black/45 px-3 py-1.5 backdrop-blur-sm">
+                      <div className="px-3 py-1.5">
                         <div className="text-[10px] tracking-[0.28em] text-cyan-400/70">{labelText}</div>
                       </div>
                     </div>

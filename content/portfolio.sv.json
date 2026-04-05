@@ -41,25 +41,61 @@
       "eyebrow": "Utvalt arbete",
       "title": "Projekt som visar leveransförmåga, gränssnittsomdöme och teknisk bredd.",
       "intro": "Urvalet fokuserar på arbete som visar verklig implementation, visuell disciplin och produkttänkande snarare än mängd.",
+      "backLabel": "Tillbaka till projekt",
+      "detailLabels": {
+        "role": "Roll",
+        "duration": "Period",
+        "highlights": "Nyckelleveranser",
+        "tech": "Teknologi"
+      },
       "cards": [
         {
           "slug": "hrnytt",
           "title": "HRnytt",
           "summary": "Responsiv redesign av en svensk HR-nyhetsplattform, från koncept och Figma-system till frontendimplementation och lansering.",
-          "stack": ["HTML", "CSS", "Figma", "Tillgänglighet"],
+          "stack": ["HTML", "CSS", "Python", "Figma", "Tillgänglighet"],
           "type": "Kundarbete",
           "links": {
             "label": "Editorial platform rebuild"
+          },
+          "liveUrl": "https://hrnytt.se",
+          "detail": {
+            "description": "HRnytt är en av Sveriges ledande digitala plattformar för HR-proffs, med nyheter, analyser och redaktionellt innehåll för HR-communityn. Plattformen behövde en komplett responsiv redesign för att modernisera läsupplevelsen, förbättra tillgängligheten och skapa ett konsekvent visuellt system över alla skärmstorlekar.\n\nJag ansvarade för frontenden — från tidigt konceptarbete och uppbyggnad av ett komponentbaserat Figma-designsystem, genom semantisk HTML/CSS/Python-implementation, till slutlig lansering. Projektet drevs i samarbete med en backendutvecklare via GitHub, där vi koordinerade leveranser och kodgranskning genom hela processen.",
+            "role": "Frontendutvecklare & Designer",
+            "duration": "Flerveckors kunduppdrag",
+            "highlights": [
+              "Byggde ett komplett Figma-designsystem från grunden med återanvändbara, skalbara komponenter",
+              "Implementerade en helt responsiv frontend med semantisk HTML, CSS och Python",
+              "Samarbetade med backendutvecklare via GitHub med kodgranskning och koordinerade leveranser",
+              "Prioriterade redaktionell läsbarhet med tydlig typografisk hierarki och innehållsstruktur",
+              "Levererade tillgänglighetsförbättringar i linje med WCAG-riktlinjer",
+              "Lanserat som en live produktionswebbplats för riktiga användare"
+            ]
           }
         },
         {
           "slug": "linnea-medical",
           "title": "Linnea Medical Care",
-          "summary": "Tvåspråkig vårdwebbplats utformad för att förmedla tydlighet, förtroende och lugn samtidigt som praktiska tillgänglighetskrav möts.",
-          "stack": ["Frontend", "UX/UI", "Tvåspråkigt innehåll", "WCAG"],
+          "summary": "Fullstack företagshälsovårdswebbplats byggd från Figma-design till produktion i Webflow — design, CMS, backend och lansering.",
+          "stack": ["Webflow", "Figma", "CMS", "UX/UI", "WCAG"],
           "type": "Kundarbete",
           "links": {
-            "label": "Healthcare brand and website"
+            "label": "Företagshälsovård webbplats"
+          },
+          "liveUrl": "https://www.linnemedical.se/",
+          "screenshotUrl": "/projects/linnea-medical.png",
+          "detail": {
+            "description": "Linné Medical Care är ett företagshälsovårdsföretag i Bromma som erbjuder personlig, auktoriserad vård. Projektet innebar att bygga hela webbplatsen från grunden — från designkoncept till färdig produktion och lansering.\n\nJag arbetade nära produktionsledaren för att förstå kundens behov och vision. Efter att ha tagit del av kundens önskemål hämtade jag inspiration från japanska harmoniska terapiwebbplatser, vilket formade en lugn, balanserad och förtroendeskapande design. Vid första presentationen var kunden mycket nöjd, och jag gick direkt vidare med att bygga siten.\n\nJag ansvarade för allt själv: Figma-design, Webflow-utveckling, CMS-uppbyggnad, responsiv implementation och slutlig lansering.",
+            "role": "Fullstack Designer & Utvecklare",
+            "duration": "Kunduppdrag",
+            "highlights": [
+              "Ensam ansvarig för hela projektet — från Figma-design till Webflow-produktion och lansering",
+              "Nära samarbete med produktionsledare för att förstå kundens behov och önskemål",
+              "Designinspiration från japansk harmonisk terapi för att skapa lugn, balans och förtroende",
+              "Byggde CMS-struktur i Webflow för enkel innehållshantering",
+              "Kunden mycket nöjd redan vid första designpresentationen",
+              "Responsiv implementation med fokus på tillgänglighet och professionell ton"
+            ]
           }
         },
         {
@@ -70,7 +106,8 @@
           "type": "Produktbidrag",
           "links": {
             "label": "AI product contribution"
-          }
+          },
+          "detail": null
         },
         {
           "slug": "desmal",
@@ -80,7 +117,8 @@
           "type": "Produktkoncept",
           "links": {
             "label": "Commerce concept build"
-          }
+          },
+          "detail": null
         },
         {
           "slug": "snabbsnack",
@@ -90,7 +128,8 @@
           "type": "Övningsprojekt",
           "links": {
             "label": "Realtime messaging app"
-          }
+          },
+          "detail": null
         }
       ]
     },

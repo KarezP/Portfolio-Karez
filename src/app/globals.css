@@ -156,3 +156,35 @@ button {
 .arrow-shift {
   animation: arrow-shift 1.5s ease-in-out infinite;
 }
+
+@keyframes holo-drill-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes holo-drill-back {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-holo-drill-in {
+  animation: holo-drill-in 0.38s ease-out both;
+}
+
+.animate-holo-drill-back {
+  animation: holo-drill-back 0.38s ease-out both;
+}

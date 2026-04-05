@@ -41,7 +41,7 @@ export const useJourneyStore = create<JourneyStore>((set) => ({
   activePlanet: null,
   flyInPhase: 'idle',
   cameraMode: 'cockpit',
-  language: 'en',
+  language: 'sv',
   reducedMotion: false,
   lowPerformanceMode: false,
   setScrollProgress: (value) => {

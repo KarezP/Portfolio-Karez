@@ -1,12 +1,16 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { getUI, getPortfolio, type ShellLang, type UILabels } from './shellContent';
 import { useJourneyStore } from '../../stores/useJourneyStore';
+import karezPhoto from '../../images/karez-space-crew.jpg';
 
 const TAU = Math.PI * 2;
-const STAR_COUNT = 680;
+const STAR_COUNT = 1200;
 const WORLD_DEPTH = 240;
+const COMET_MAX = 3;
 const STARFIELD_WIDTH = 4.4;
 const STARFIELD_HEIGHT = 2.4;
 
@@ -15,9 +19,10 @@ const PANEL_POSITION = {
   about: { justify: 'justify-center', panelShift: '', width: 'max-w-[46rem]', panelWidth: 736 },
   contact: { justify: 'justify-start', panelShift: 'ml-2', width: 'max-w-[52rem]', panelWidth: 832 },
   skills: { justify: 'justify-end', panelShift: 'mr-2', width: 'max-w-[46rem]', panelWidth: 736 },
+  home: { justify: 'justify-start', panelShift: 'ml-2', width: 'max-w-[46rem]', panelWidth: 736 },
 } as const;
 
-type PlanetId = 'projects' | 'about' | 'contact' | 'skills';
+type PlanetId = 'home' | 'projects' | 'about' | 'contact' | 'skills';
 type SceneMode = 'idle' | 'focus' | 'return';
 
 type ProjectDetail = {
@@ -49,8 +54,16 @@ type SkillCategory = {
   items: string[];
 };
 
+type HomePlanetContent = PlanetContent & {
+  pitch: string;
+  stats: Array<{ value: string; label: string }>;
+  navHeading: string;
+  destinations: Array<{ id: string; name: string; description: string }>;
+};
+
 type PortfolioData = {
   planets: {
+    home: HomePlanetContent;
     projects: PlanetContent & { cards: ProjectCard[] };
     about: PlanetContent & {
       body: string;
@@ -170,75 +183,96 @@ declare global {
 
 const planetConfig: PlanetConfig[] = [
   {
+    // Orbit 1 — upper-right, prominent
     id: 'projects',
     name: 'PROJECT CLUSTER',
     description: 'Utvalt arbete och levererade projekt',
     colorA: '#e9d5ff',
     colorB: '#9333ea',
     glow: 'rgba(192,132,252,0.36)',
-    baseRadius: 44,
-    worldX: 300,
-    worldY: -40,
-    worldZ: -430,
+    baseRadius: 40,
+    worldX: 290,
+    worldY: -100,
+    worldZ: -420,
     textureSeed: 2.2,
     spinSpeed: 0.34,
     axialTilt: -0.18,
     hologramTone: 'fuchsia',
   },
   {
+    // Orbit 2 — left, mid-level
     id: 'about',
     name: 'EXPERIENCE',
     description: 'Bakgrund, profil och riktning',
     colorA: '#93c5fd',
     colorB: '#2563eb',
     glow: 'rgba(96,165,250,0.3)',
-    baseRadius: 40,
-    worldX: -340,
-    worldY: 100,
-    worldZ: -540,
+    baseRadius: 36,
+    worldX: -300,
+    worldY: 50,
+    worldZ: -480,
     textureSeed: 4.6,
     spinSpeed: 0.26,
     axialTilt: 0.12,
     hologramTone: 'sky',
   },
   {
+    // Orbit 3 — lower-right, far
     id: 'contact',
     name: 'CONTACT BEACON',
     description: 'Oppen kanal for direktkontakt',
     colorA: '#fde047',
     colorB: '#d97706',
     glow: 'rgba(251,191,36,0.32)',
-    baseRadius: 36,
-    worldX: 390,
-    worldY: 175,
-    worldZ: -620,
+    baseRadius: 30,
+    worldX: 260,
+    worldY: 150,
+    worldZ: -560,
     textureSeed: 7.1,
     spinSpeed: 0.41,
     axialTilt: -0.1,
     hologramTone: 'amber',
   },
   {
+    // Orbit 0 — upper-left, closest
     id: 'skills',
     name: 'SKILL GALAXY',
     description: 'Tekniska fardigheter och verktyg',
     colorA: '#6ee7b7',
     colorB: '#059669',
     glow: 'rgba(52,211,153,0.32)',
-    baseRadius: 30,
-    worldX: -310,
-    worldY: -155,
-    worldZ: -280,
+    baseRadius: 28,
+    worldX: -240,
+    worldY: -110,
+    worldZ: -340,
     textureSeed: 5.4,
     spinSpeed: 0.3,
     axialTilt: -0.12,
     hologramTone: 'sky',
+  },
+  {
+    // Central star — the sun, anchor of the solar system
+    id: 'home',
+    name: 'HOME STATION',
+    description: 'Kaptensbriefing och snabbnavigering',
+    colorA: '#fb923c',
+    colorB: '#9a3412',
+    glow: 'rgba(251,146,60,0.4)',
+    baseRadius: 48,
+    worldX: 0,
+    worldY: 10,
+    worldZ: -420,
+    textureSeed: 1.2,
+    spinSpeed: 0.18,
+    axialTilt: 0.06,
+    hologramTone: 'amber',
   },
 ];
 
 const decorativeBodies: DecorativeBody[] = [];
 
 function easeInOutCubic(t: number) {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  return 1 - Math.pow(1 - t, 3);
 }
 
 function clamp(v: number, min: number, max: number) {
@@ -275,15 +309,54 @@ function makeStars(): Star[] {
   });
 }
 
+interface Comet {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number;
+  maxLife: number;
+  size: number;
+  tailLength: number;
+}
+
+function spawnComet(w: number, h: number): Comet {
+  const fromLeft = Math.random() > 0.5;
+  const x = fromLeft ? -40 : w + 40;
+  const targetX = fromLeft ? w * (0.3 + Math.random() * 0.7) : w * Math.random() * 0.7;
+  const y = -20 + Math.random() * h * 0.3;
+  const targetY = h * (0.5 + Math.random() * 0.5);
+  const dx = targetX - x;
+  const dy = targetY - y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const speed = 2.5 + Math.random() * 2.5;
+  return {
+    x,
+    y,
+    vx: (dx / dist) * speed,
+    vy: (dy / dist) * speed,
+    life: 1,
+    maxLife: dist / speed,
+    size: 1.2 + Math.random() * 1.2,
+    tailLength: 60 + Math.random() * 80,
+  };
+}
+
 function projectPlanet(planet: PlanetConfig, camera: CameraState, w: number, h: number): PlanetScreen {
   const relZ = planet.worldZ - camera.z;
   const distanceFromCamera = Math.max(140, camera.z - planet.worldZ);
   const perspective = 560 / Math.max(280, distanceFromCamera + 176);
 
+  // Responsive scaling: on portrait mobile, compress X but spread Y
+  const isPortrait = w < 768;
+  const xScale = Math.min(1, w / 1200);
+  const yScale = isPortrait ? Math.min(1.4, h / 650) : Math.min(1, w / 1200);
+  const radiusScale = Math.max(0.55, Math.min(1, Math.min(w, h) / 900));
+
   return {
-    x: w * 0.5 + (planet.worldX - camera.x) * perspective,
-    y: h * 0.5 + (planet.worldY - camera.y) * perspective,
-    radius: planet.baseRadius * perspective * 1.18,
+    x: w * 0.5 + (planet.worldX - camera.x) * perspective * xScale,
+    y: h * 0.5 + (planet.worldY - camera.y) * perspective * yScale,
+    radius: planet.baseRadius * perspective * 1.18 * radiusScale,
     relZ,
   };
 }
@@ -295,9 +368,9 @@ function getAnimatedPlanet(planet: PlanetConfig) {
 function getPanelPlacement(planetId: PlanetId, screen: PlanetScreen | undefined, viewport: ViewportSize) {
   const config = PANEL_POSITION[planetId];
   const panelWidth = Math.min(config.panelWidth, viewport.width < 768 ? viewport.width - 40 : 640);
-  const panelHeight = viewport.width < 768 ? Math.min(520, viewport.height * 0.68) : Math.min(640, viewport.height - 120);
+  const panelHeight = viewport.width < 768 ? Math.min(520, viewport.height * 0.68) : Math.min(viewport.height - 80, viewport.height * 0.82);
   const left = viewport.width < 768 ? 20 : 48;
-  const top = Math.max(32, (viewport.height - panelHeight) * 0.5);
+  const top = viewport.width < 768 ? Math.max(8, (viewport.height - panelHeight) * 0.15) : Math.max(16, (viewport.height - panelHeight) * 0.4);
   const connectorEndX = left + panelWidth;
   const connectorEndY = top + panelHeight * 0.42;
 
@@ -320,35 +393,45 @@ function drawPlanet(
   screen: PlanetScreen,
   highlight: number,
   arrivalGlow: number,
-  spin = 0
+  spin = 0,
+  time = 0,
+  particles?: Array<{ angle: number; distance: number; speed: number; size: number }>
 ) {
   if (screen.radius <= 0) {
     return;
   }
 
+  // Hologram flicker
+  const flicker = Math.random() > 0.97 ? 0.7 : 1;
+  ctx.globalAlpha = flicker;
+
   ctx.save();
   ctx.translate(screen.x, screen.y);
 
-  // Outer atmospheric halo
+  // Pulse breathing
+  const pulse = Math.sin(time * 1.2) * 0.04 + 1;
+  const r = screen.radius * pulse;
+
+  // Outer atmospheric halo (uses pulsing radius)
   ctx.save();
   ctx.globalAlpha = highlight * 0.14 + 0.04;
-  const haloGrad = ctx.createRadialGradient(0, 0, screen.radius * 0.5, 0, 0, screen.radius * 3.5);
+  const haloGrad = ctx.createRadialGradient(0, 0, r * 0.5, 0, 0, r * 3.5);
   haloGrad.addColorStop(0, planet.glow);
   haloGrad.addColorStop(0.35, planet.glow.replace(/[\d.]+\)$/, '0.06)'));
   haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = haloGrad;
   ctx.beginPath();
-  ctx.arc(0, 0, screen.radius * 3.5, 0, TAU);
+  ctx.arc(0, 0, r * 3.5, 0, TAU);
   ctx.fill();
   ctx.restore();
 
-  const glow = ctx.createRadialGradient(0, 0, screen.radius * 0.9, 0, 0, screen.radius * 2.4);
+  const glow = ctx.createRadialGradient(0, 0, r * 0.9, 0, 0, r * 2.4);
   glow.addColorStop(0, planet.glow.replace(/0\.\d+\)/, `${0.2 + arrivalGlow * 0.13})`));
   glow.addColorStop(0.5, planet.glow.replace(/0\.\d+\)/, '0.1)'));
   glow.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = glow;
   ctx.beginPath();
-  ctx.arc(0, 0, screen.radius * 2.4, 0, TAU);
+  ctx.arc(0, 0, r * 2.4, 0, TAU);
   ctx.fill();
 
   const g = ctx.createRadialGradient(-screen.radius * 0.3, -screen.radius * 0.3, screen.radius * 0.1, 0, 0, screen.radius);
@@ -430,6 +513,20 @@ function drawPlanet(
     ctx.stroke();
   }
 
+  // Orbiting particles
+  if (particles) {
+    for (const p of particles) {
+      p.angle += p.speed;
+      const px = Math.cos(p.angle) * p.distance;
+      const py = Math.sin(p.angle) * p.distance;
+      ctx.fillStyle = planet.glow.replace(/[\d.]+\)$/, '0.6)');
+      ctx.beginPath();
+      ctx.arc(px, py, p.size, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  ctx.globalAlpha = 1;
   ctx.restore();
 }
 
@@ -452,13 +549,14 @@ function HologramFrame({
   return (
     <div className={'relative w-full max-w-xl transition-all duration-700 delay-200 ' + (visible ? 'translate-x-0 opacity-100' : '-translate-x-[100px] opacity-0')}>
       <div className="absolute inset-0 bg-cyan-400/10 blur-3xl" />
-      <div className="relative flex flex-col overflow-hidden border border-cyan-400/30 bg-black/80 p-8 backdrop-blur-xl" style={{ maxHeight: '72vh' }}>
+      <div className="relative flex flex-col border border-cyan-400/30 bg-black/80 p-4 sm:p-6 lg:p-8 backdrop-blur-xl" style={{ maxHeight: 'min(68vh, calc(100dvh - 60px))' }}>
         <div className="pointer-events-none absolute left-0 top-0 h-4 w-4 border-l-2 border-t-2 border-cyan-400/60" />
         <div className="pointer-events-none absolute right-0 top-0 h-4 w-4 border-r-2 border-t-2 border-cyan-400/60" />
         <div className="pointer-events-none absolute bottom-0 left-0 h-4 w-4 border-b-2 border-l-2 border-cyan-400/60" />
         <div className="pointer-events-none absolute bottom-0 right-0 h-4 w-4 border-b-2 border-r-2 border-cyan-400/60" />
         <div className={'pointer-events-none absolute left-8 right-8 top-0 h-px bg-gradient-to-r from-transparent via-current to-transparent ' + accent} />
-        <div className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden pr-2" style={{ paddingBottom: '3.5rem', scrollPaddingBottom: '3.5rem' }}>
+        <div className={'pointer-events-none absolute left-8 right-8 bottom-0 h-px bg-gradient-to-r from-transparent via-current to-transparent ' + accent} />
+        <div className="holo-scroll relative z-10 flex-1 overflow-y-auto overflow-x-hidden pr-2" style={{ paddingBottom: '3.5rem', scrollPaddingBottom: '3.5rem' }}>
           {children}
         </div>
       </div>
@@ -689,7 +787,7 @@ function SectionPanel({
     );
   }
 
-  if (sectionId === 'about') {
+  if (sectionId === 'home') {
     const section = portfolio.planets.about;
     return (
       <HologramFrame tone={tone} visible={visible}>
@@ -732,6 +830,88 @@ function SectionPanel({
           <div className="border-l-2 border-cyan-400/40 pl-4 text-sm text-white/70">
             <div className="font-medium">{portfolio.references.quoteLabel}</div>
             <p className="mt-2 leading-6">&ldquo;{portfolio.references.quote}&rdquo;</p>
+          </div>
+        </div>
+      </HologramFrame>
+    );
+  }
+
+  if (sectionId === 'about') {
+    const home = portfolio.planets.home as any;
+    return (
+      <HologramFrame tone={tone} visible={visible}>
+        <div className="space-y-6 pb-12 text-white/70 leading-relaxed">
+          {closeButton}
+          <div className="pt-12 flex flex-col sm:flex-row gap-6 items-start">
+            <div className="relative shrink-0 mx-auto sm:mx-0">
+              <div className="relative h-32 w-32 sm:h-36 sm:w-36 overflow-hidden rounded-full">
+                <Image src={karezPhoto} alt="Karez" fill className="object-cover" />
+              </div>
+            </div>
+            <div>
+              <div className={'mb-4 text-xs uppercase tracking-[0.3em] ' + sectionLabelTone}>{home.eyebrow}</div>
+              <h2 className="mb-4 text-3xl font-thin tracking-wide text-white">{home.title}</h2>
+              <div className="mb-5 text-xs uppercase tracking-[0.28em] text-cyan-400/60">{home.intro}</div>
+              <p className="text-sm leading-7 text-white/70">{home.pitch}</p>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="flex flex-wrap gap-6">
+            {home.stats.map((stat: any) => (
+              <div key={stat.label} className="text-center">
+                <div className="text-2xl font-light leading-none text-cyan-400">{stat.value}</div>
+                <div className="mt-1 text-[10px] uppercase tracking-[0.18em] text-white/40">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* External validation */}
+          <div>
+            <div className={'mb-3 text-sm tracking-wider ' + subheadingTone}>{home.externalProof.heading}</div>
+            <div className="border-l-2 border-amber-400/40 pl-4">
+              <p className="text-sm leading-7 text-white/70 italic">&ldquo;{home.externalProof.reaktionQuote}&rdquo;</p>
+              <a
+                href={home.externalProof.reaktionUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs text-amber-400/80 transition-colors hover:text-amber-300"
+              >
+                {home.externalProof.reaktionLabel} <span className="text-[10px]">↗</span>
+              </a>
+            </div>
+            <div className="mt-4 border-l-2 border-cyan-400/40 pl-4">
+              <div className="text-[10px] uppercase tracking-[0.28em] text-cyan-400/50 mb-1">{home.externalProof.supervisorHeading}</div>
+              <p className="text-sm leading-7 text-white/70 italic">&ldquo;{home.externalProof.supervisorQuote}&rdquo;</p>
+            </div>
+          </div>
+
+          {/* Backstory */}
+          <div>
+            <div className={'mb-3 text-sm tracking-wider ' + subheadingTone}>{home.backstory.heading}</div>
+            <ul className="space-y-2.5">
+              {home.backstory.items.map((item: string, i: number) => (
+                <li key={i} className="flex items-start gap-2.5 text-sm leading-7 text-white/70">
+                  <span className="mt-2 block h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400/60" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* CTA */}
+          <div className="border border-amber-400/20 bg-amber-400/5 p-5">
+            <div className="text-[10px] uppercase tracking-[0.28em] text-amber-400/60 mb-2">{home.cta.heading}</div>
+            <p className="text-sm text-white/80">{home.cta.text}</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              <a href={`mailto:${portfolio.contact.email}`} className="text-xs text-amber-400/80 transition-colors hover:text-amber-300">
+                {portfolio.contact.email}
+              </a>
+              <span className="text-white/20">|</span>
+              <a href={portfolio.contact.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-amber-400/80 transition-colors hover:text-amber-300">
+                LinkedIn ↗
+              </a>
+            </div>
           </div>
         </div>
       </HologramFrame>
@@ -987,7 +1167,7 @@ function CaptainIntro({
   const portfolio = getPortfolio(language as ShellLang) as PortfolioData;
 
   return (
-    <div className="absolute inset-0 z-20 bg-[#0a0e1a]">
+    <div className="absolute inset-0 z-20 overflow-y-auto sm:overflow-hidden bg-[#0a0e1a]" style={{ minHeight: '100%' }}>
       <div className="pointer-events-none absolute inset-0 opacity-5 [background-image:repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(6,182,212,0.05)_2px,rgba(6,182,212,0.05)_4px)]" />
 
       <div className="pointer-events-none absolute left-5 top-5 h-4 w-4 border-l border-t border-cyan-400/60" />
@@ -998,7 +1178,7 @@ function CaptainIntro({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/70 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
 
-      <div className="absolute inset-x-8 top-6 z-30 flex items-center justify-between font-mono text-xs uppercase tracking-[0.3em] text-cyan-400/60">
+      <div className="absolute inset-x-4 sm:inset-x-6 lg:inset-x-8 top-6 z-30 flex items-center justify-between font-mono text-xs uppercase tracking-[0.3em] text-cyan-400/60">
         <div className="flex items-center gap-3">
           <span className="h-2 w-2 rounded-full bg-cyan-400 hud-pulse" />
           <span>{ui.navOnline}</span>
@@ -1015,21 +1195,21 @@ function CaptainIntro({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-8 bottom-5 grid grid-cols-3 font-mono text-xs uppercase tracking-widest text-cyan-400/40">
+      <div className="pointer-events-none absolute inset-x-4 sm:inset-x-6 lg:inset-x-8 bottom-5 hidden sm:grid grid-cols-3 font-mono text-xs uppercase tracking-widest text-cyan-400/40">
         <div>{ui.systemStatus}</div>
         <div className="text-center">{ui.focus}</div>
         <div className="text-right">{ui.distance}</div>
       </div>
 
-      <div className="pointer-events-auto relative z-10 mx-auto grid h-full w-full max-w-7xl grid-cols-1 items-center gap-8 px-8 py-24 lg:grid-cols-3">
-        <div className="flex justify-center lg:justify-end">
+      <div className="pointer-events-auto relative z-10 mx-auto grid min-h-full w-full max-w-7xl grid-cols-1 items-center gap-6 px-4 py-20 sm:gap-6 sm:px-6 sm:py-20 lg:px-8 lg:py-28 xl:grid-cols-3 xl:-translate-x-8">
+        <div className="flex justify-center xl:justify-center">
           <div className="relative">
             <HologramPlanet />
           </div>
         </div>
 
-        <div className="text-center lg:text-left">
-          <div className="flex items-center justify-center gap-3 lg:justify-start">
+        <div className="text-center xl:text-left">
+          <div className="flex items-center justify-center gap-3 xl:justify-start">
             <div className="h-px w-8 bg-gradient-to-r from-transparent to-cyan-400/40" />
             <span className="font-mono text-xs tracking-[0.4em] text-cyan-400/60">
               {ui.title}
@@ -1038,43 +1218,43 @@ function CaptainIntro({
           </div>
 
           <div className="relative mb-6 mt-6">
-            <h1 className="relative z-10 text-4xl font-thin tracking-[0.16em] text-white lg:text-6xl">
+            <h1 className="relative z-10 text-3xl font-thin tracking-[0.1em] text-white sm:text-4xl sm:tracking-[0.16em] xl:text-6xl">
               KAREZ PESHAWA
             </h1>
-            <div className="absolute inset-0 text-4xl font-thin tracking-[0.16em] text-cyan-400/20 blur-sm lg:text-6xl">
+            <div className="absolute inset-0 text-3xl font-thin tracking-[0.1em] text-cyan-400/20 blur-sm sm:text-4xl sm:tracking-[0.16em] xl:text-6xl">
               KAREZ PESHAWA
             </div>
           </div>
 
           <div className="relative mb-6">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-cyan-400/10 to-cyan-500/5 blur-xl" />
-              <p className="relative mx-auto max-w-xl text-base leading-relaxed text-white/80 lg:mx-0 lg:text-lg">
+              <p className="relative mx-auto max-w-xl text-sm leading-relaxed text-white/80 sm:text-base xl:mx-0 xl:text-lg">
                 {ui.introWelcome}
               </p>
           </div>
 
-          <div className="flex items-center justify-center gap-6 lg:justify-start">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 xl:gap-6 xl:justify-start">
             <div className="text-center">
-              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">{ui.statInternship}</div>
-              <div className="text-[10px] tracking-[0.18em] text-white/40">{ui.statInternshipLabel}</div>
+              <div className="mb-1 text-xl sm:text-2xl lg:text-[1.8rem] font-light leading-none text-cyan-400">{ui.statInternship}</div>
+              <div className="text-[8px] sm:text-[10px] tracking-[0.18em] text-white/40">{ui.statInternshipLabel}</div>
             </div>
 
             <div className="h-10 w-px bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent" />
 
             <div className="text-center">
-              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">{ui.statSites}</div>
-              <div className="text-[10px] tracking-[0.18em] text-white/40">{ui.statSitesLabel}</div>
+              <div className="mb-1 text-xl sm:text-2xl lg:text-[1.8rem] font-light leading-none text-cyan-400">{ui.statSites}</div>
+              <div className="text-[8px] sm:text-[10px] tracking-[0.18em] text-white/40">{ui.statSitesLabel}</div>
             </div>
 
             <div className="h-10 w-px bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent" />
 
             <div className="text-center">
-              <div className="mb-1 text-[1.8rem] font-light leading-none text-cyan-400">{ui.statGrade}</div>
-              <div className="text-[10px] tracking-[0.18em] text-white/40">{ui.statGradeLabel}</div>
+              <div className="mb-1 text-xl sm:text-2xl lg:text-[1.8rem] font-light leading-none text-cyan-400">{ui.statGrade}</div>
+              <div className="text-[8px] sm:text-[10px] tracking-[0.18em] text-white/40">{ui.statGradeLabel}</div>
             </div>
           </div>
 
-          <div className="mt-10 flex justify-center lg:justify-start">
+          <div className="mt-6 flex justify-center sm:mt-8 xl:mt-10 xl:justify-start">
             <button
               type="button"
               onClick={onBegin}
@@ -1095,10 +1275,10 @@ function CaptainIntro({
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 xl:translate-x-8">
           <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-transparent opacity-0 blur-md transition-opacity group-hover:opacity-100" />
-            <div className="relative border border-cyan-400/20 bg-black/30 p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
+            <div className="relative border border-cyan-400/20 bg-black/30 p-3 sm:p-4 lg:p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
               <div className="mb-3 flex items-center gap-2">
                 <div className="h-3 w-1 bg-cyan-400" />
                 <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">{ui.proofSignal}</h3>
@@ -1111,7 +1291,7 @@ function CaptainIntro({
 
           <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent opacity-0 blur-md transition-opacity group-hover:opacity-100" />
-            <div className="relative border border-cyan-400/20 bg-black/30 p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
+            <div className="relative border border-cyan-400/20 bg-black/30 p-3 sm:p-4 lg:p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
               <div className="mb-3 flex items-center gap-2">
                 <div className="h-3 w-1 bg-purple-400" />
                 <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">{ui.navGuide}</h3>
@@ -1124,7 +1304,7 @@ function CaptainIntro({
 
           <div className="group relative">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-transparent opacity-0 blur-md transition-opacity group-hover:opacity-100" />
-            <div className="relative border border-cyan-400/20 bg-black/30 p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
+            <div className="relative border border-cyan-400/20 bg-black/30 p-3 sm:p-4 lg:p-5 backdrop-blur-sm transition-colors group-hover:border-cyan-400/40">
               <div className="mb-3 flex items-center gap-2">
                 <div className="h-3 w-1 bg-orange-400" />
                 <h3 className="font-mono text-xs tracking-[0.3em] text-cyan-400/80">{ui.currentMode}</h3>
@@ -1142,6 +1322,25 @@ export default function PortfolioExperienceShell() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const stars = useMemo(() => makeStars(), []);
+  const cometsRef = useRef<Comet[]>([]);
+  const cometTimerRef = useRef(0);
+  const planetParticles = useMemo(() => {
+    const particles: Record<string, Array<{ angle: number; distance: number; speed: number; size: number }>> = {};
+    for (const planet of planetConfig) {
+      const arr = [];
+      for (let i = 0; i < 15; i++) {
+        arr.push({
+          angle: Math.random() * TAU,
+          distance: planet.baseRadius * 1.8 + Math.random() * 25,
+          speed: 0.003 + Math.random() * 0.006,
+          size: 0.5 + Math.random() * 1.5,
+        });
+      }
+      particles[planet.id] = arr;
+    }
+    return particles;
+  }, []);
+  const planetParticlesRef = useRef(planetParticles);
   const [activePlanetId, setActivePlanetId] = useState<PlanetId | null>(null);
   const [hoverPlanetId, setHoverPlanetId] = useState<PlanetId | null>(null);
   const [planetScreens, setPlanetScreens] = useState<Record<string, PlanetScreen>>({});
@@ -1151,6 +1350,8 @@ export default function PortfolioExperienceShell() {
   const [introDismissed, setIntroDismissed] = useState(false);
   const activePlanetIdRef = useRef<PlanetId | null>(null);
   const hoverPlanetIdRef = useRef<PlanetId | null>(null);
+  const mouseX = useRef(0);
+  const mouseY = useRef(0);
   const introActive = !activePlanetId && sceneMode === 'idle' && !introDismissed;
 
   const language = useJourneyStore((s) => s.language);
@@ -1164,6 +1365,15 @@ export default function PortfolioExperienceShell() {
   useEffect(() => {
     hoverPlanetIdRef.current = hoverPlanetId;
   }, [hoverPlanetId]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX.current = (e.clientX - window.innerWidth / 2) * 0.02;
+      mouseY.current = (e.clientY - window.innerHeight / 2) * 0.02;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1186,7 +1396,7 @@ export default function PortfolioExperienceShell() {
       camera: { x: 0, y: 0, z: -110 },
       selectedPlanetId: null,
       flightT: 0,
-      flightDuration: 4.2,
+      flightDuration: 2.5,
       speed: 0,
       speedNorm: 0,
       phase: 'idle',
@@ -1243,8 +1453,8 @@ export default function PortfolioExperienceShell() {
         const selected = planetConfig.find((item) => item.id === state.selectedPlanetId);
         if (selected) {
           const focusOffset = getPlanetFocusOffsets(state.selectedPlanetId);
-          const swayX = Math.sin(state.time * 0.86) * 2.2 * (1 - t * 0.36);
-          const swayY = Math.cos(state.time * 0.62) * 1.4 * (1 - t * 0.32);
+          const swayX = Math.sin(state.time * 0.86) * 1.0 * (1 - t);
+          const swayY = Math.cos(state.time * 0.62) * 0.6 * (1 - t);
           state.camera.x = mix(0, selected.worldX + focusOffset.x, t) + swayX;
           state.camera.y = mix(0, selected.worldY + focusOffset.y, t) + swayY;
           state.camera.z = mix(-110, selected.worldZ + 84, t);
@@ -1314,8 +1524,8 @@ export default function PortfolioExperienceShell() {
 
         const depth = clamp(1 - star.z / WORLD_DEPTH, 0.05, 1);
         const perspective = 1.2 / Math.max(0.25, star.z / WORLD_DEPTH + 0.08);
-        const sx = width * 0.5 + (star.x * width * 0.52 - state.camera.x * star.layerDepth * 14) * perspective;
-        const sy = height * 0.5 + (star.y * height * 0.5 - state.camera.y * star.layerDepth * 14) * perspective;
+        const sx = width * 0.5 + (star.x * width * 0.52 - state.camera.x * star.layerDepth * 14) * perspective + mouseX.current * star.layerDepth * 8;
+        const sy = height * 0.5 + (star.y * height * 0.5 - state.camera.y * star.layerDepth * 14) * perspective + mouseY.current * star.layerDepth * 8;
 
         if (sx < -140) {
           star.x += STARFIELD_WIDTH;
@@ -1330,15 +1540,17 @@ export default function PortfolioExperienceShell() {
           star.y -= STARFIELD_HEIGHT;
         }
 
-        const wrappedSx = width * 0.5 + (star.x * width * 0.52 - state.camera.x * star.layerDepth * 14) * perspective;
-        const wrappedSy = height * 0.5 + (star.y * height * 0.5 - state.camera.y * star.layerDepth * 14) * perspective;
+        const wrappedSx = width * 0.5 + (star.x * width * 0.52 - state.camera.x * star.layerDepth * 14) * perspective + mouseX.current * star.layerDepth * 8;
+        const wrappedSy = height * 0.5 + (star.y * height * 0.5 - state.camera.y * star.layerDepth * 14) * perspective + mouseY.current * star.layerDepth * 8;
         if (wrappedSx < -140 || wrappedSx > width + 140 || wrappedSy < -120 || wrappedSy > height + 120) {
           continue;
         }
 
         const streak = state.speedNorm * 42 * star.layerDepth * depth;
         const radius = Math.max(0.4, star.size * (0.7 + depth));
-        const twinkle = Math.sin(state.time * 2 + star.twinkleSeed + star.x) * 0.5 + 0.5;
+        const twinkleBase = Math.sin(state.time * 3.5 + star.twinkleSeed) * 0.5 + 0.5;
+        const twinkleFlash = Math.sin(state.time * 8.2 + star.twinkleSeed * 3.7) > 0.92 ? 1.5 : 1;
+        const twinkle = twinkleBase * twinkleFlash;
         ctx.save();
         ctx.translate(wrappedSx, wrappedSy);
         ctx.rotate(Math.PI * 0.5 + state.camera.x * 0.005);
@@ -1360,6 +1572,61 @@ export default function PortfolioExperienceShell() {
         ctx.restore();
       }
 
+      // Comets
+      cometTimerRef.current += dt;
+      if (cometTimerRef.current > 1 && cometsRef.current.length < COMET_MAX && Math.random() < 0.004) {
+        cometsRef.current.push(spawnComet(width, height));
+        cometTimerRef.current = 0;
+      }
+      cometsRef.current = cometsRef.current.filter((c) => c.life > 0);
+      for (const comet of cometsRef.current) {
+        comet.x += comet.vx;
+        comet.y += comet.vy;
+        comet.life -= 1 / comet.maxLife;
+        const alpha = Math.min(1, comet.life * 3) * Math.min(1, (1 - comet.life) * 5);
+        ctx.save();
+        const angle = Math.atan2(comet.vy, comet.vx);
+        ctx.translate(comet.x, comet.y);
+        ctx.rotate(angle);
+        const tailGrad = ctx.createLinearGradient(0, 0, -comet.tailLength, 0);
+        tailGrad.addColorStop(0, `rgba(200, 230, 255, ${alpha * 0.9})`);
+        tailGrad.addColorStop(0.3, `rgba(140, 200, 255, ${alpha * 0.4})`);
+        tailGrad.addColorStop(1, 'rgba(140, 200, 255, 0)');
+        ctx.strokeStyle = tailGrad;
+        ctx.lineWidth = comet.size;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(-comet.tailLength, 0);
+        ctx.stroke();
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#e0f0ff';
+        ctx.beginPath();
+        ctx.arc(0, 0, comet.size * 1.2, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = `rgba(140, 210, 255, ${alpha * 0.3})`;
+        ctx.beginPath();
+        ctx.arc(0, 0, comet.size * 4, 0, TAU);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Connection lines between planets
+      ctx.save();
+      ctx.strokeStyle = 'rgba(6, 182, 212, 0.06)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 6]);
+      const screenPlanets = planetConfig.map(p => projectPlanet(p, state.camera, width, height));
+      for (let i = 0; i < screenPlanets.length; i++) {
+        for (let j = i + 1; j < screenPlanets.length; j++) {
+          ctx.beginPath();
+          ctx.moveTo(screenPlanets[i].x, screenPlanets[i].y);
+          ctx.lineTo(screenPlanets[j].x, screenPlanets[j].y);
+          ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+      ctx.restore();
+
       const orderedBodies = [...decorativeBodies, ...planetConfig]
         .map((planet) => ({ planet, screen: projectPlanet(planet as PlanetConfig, state.camera, width, height) }))
         .sort((a, b) => b.screen.relZ - a.screen.relZ);
@@ -1377,7 +1644,7 @@ export default function PortfolioExperienceShell() {
         const highlight = isActive ? 1 : isHovered ? 0.72 : 0.16;
         const arrivalGlow = isActive ? 0.65 + state.speedNorm * 0.35 : 0.12;
         const spin = state.time * planet.spinSpeed + planet.textureSeed * 0.2;
-        drawPlanet(ctx, planet, screen, highlight, arrivalGlow, spin);
+        drawPlanet(ctx, planet as PlanetConfig, screen, highlight, arrivalGlow, spin, state.time, isInteractive ? planetParticlesRef.current[planet.id] : undefined);
 
         if (isActive) {
           ctx.save();
@@ -1447,9 +1714,9 @@ export default function PortfolioExperienceShell() {
         <div className="relative flex-1 overflow-hidden rounded-[30px] border border-white/10 bg-slate-950/40 shadow-2xl shadow-slate-950/50 backdrop-blur">
           <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-950/70 to-transparent" />
 
-          <div className="min-h-[78vh] p-4 lg:p-5">
-            <div ref={containerRef} className="relative min-h-[78vh] overflow-hidden rounded-[28px] border border-white/10 bg-black/60 shadow-2xl shadow-sky-950/20">
-              {!introActive ? <canvas ref={canvasRef} className="block h-full min-h-[78vh] w-full" /> : null}
+          <div className="min-h-[90vh] p-4 lg:p-5">
+            <div ref={containerRef} className="relative min-h-[90vh] overflow-hidden rounded-[28px] border border-white/10 bg-black/60 shadow-2xl shadow-sky-950/20">
+              {!introActive ? <canvas ref={canvasRef} className="block h-full min-h-[90vh] w-full" /> : null}
 
               {introActive ? (
                 <CaptainIntro onBegin={() => setIntroDismissed(true)} />
@@ -1459,14 +1726,14 @@ export default function PortfolioExperienceShell() {
                 <>
                   <div className="pointer-events-none absolute inset-0 opacity-5" style={{ backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(6, 182, 212, 0.05) 2px, rgba(6, 182, 212, 0.05) 4px)' }} />
 
-                  <div className="pointer-events-none absolute left-8 top-8">
-                    <div className="text-xs tracking-[0.3em] text-cyan-400/60">{ui.galaxyOverview}</div>
+                  <div className="pointer-events-none absolute left-4 top-4 sm:left-6 sm:top-6 lg:left-8 lg:top-8">
+                    <div className="text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.3em] text-cyan-400/60">{ui.galaxyOverview}</div>
                     <div className="h-[1px] w-16 bg-cyan-400/40" />
                     <div className="h-16 w-[1px] bg-cyan-400/40" />
                   </div>
 
-                  <div className="absolute right-8 top-8 z-30 flex items-center gap-4 text-right">
-                    <div className="pointer-events-none text-xs tracking-[0.3em] text-cyan-400/60">{ui.deepSpaceScan}</div>
+                  <div className="absolute right-4 top-4 sm:right-6 sm:top-6 lg:right-8 lg:top-8 z-30 flex items-center gap-4 text-right">
+                    <div className="pointer-events-none text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.3em] text-cyan-400/60">{ui.deepSpaceScan}</div>
                     <button
                       type="button"
                       onClick={() => setLanguage(language === 'sv' ? 'en' : 'sv')}
@@ -1478,14 +1745,43 @@ export default function PortfolioExperienceShell() {
                     <div className="pointer-events-none absolute right-0 top-8 h-16 w-[1px] bg-cyan-400/40" />
                   </div>
 
-                  <div className="pointer-events-none absolute bottom-8 left-8">
-                    <div className="h-16 w-[1px] bg-cyan-400/40" />
-                    <div className="h-[1px] w-16 bg-cyan-400/40" />
-                    <div className="mt-2 text-xs tracking-[0.3em] text-cyan-400/60">{ui.navigation}</div>
-                    <div className="text-xs text-cyan-400/40">{ui.navSubtext}</div>
-                  </div>
+                  {!activePlanetId ? (
+                    <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 lg:bottom-8 lg:left-8 z-20 scale-75 origin-bottom-left sm:scale-100">
+                      <div className="relative h-20 w-20 sm:h-24 sm:w-24 lg:h-28 lg:w-28 border border-cyan-400/30 bg-black/40 backdrop-blur-sm">
+                        <div className="absolute inset-0 flex items-center justify-center" style={{ perspective: '200px' }}>
+                          <motion.div
+                            className="absolute h-14 w-14 sm:h-[4.5rem] sm:w-[4.5rem] lg:h-20 lg:w-20 rounded-full border-2 border-cyan-400/25"
+                            animate={{ rotateY: 360 }}
+                            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+                            style={{ transformStyle: 'preserve-3d' }}
+                          />
+                          <motion.div
+                            className="absolute h-11 w-11 sm:h-14 sm:w-14 lg:h-16 lg:w-16 rounded-full border-2 border-purple-400/25"
+                            animate={{ rotateX: 360 }}
+                            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+                            style={{ transformStyle: 'preserve-3d' }}
+                          />
+                          <motion.div
+                            className="absolute h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 rounded-full border-2 border-orange-400/25"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+                          />
+                          <div className="absolute h-3 w-3 rounded-full bg-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.8)]" />
+                        </div>
+                      </div>
+                      <div className="mt-2 text-[8px] sm:text-[10px] tracking-[0.3em] text-cyan-400/60">{ui.navigation}</div>
+                      <div className="text-[8px] sm:text-[10px] text-cyan-400/40">{ui.navSubtext}</div>
+                    </div>
+                  ) : (
+                    <div className="pointer-events-none absolute bottom-4 left-4 sm:bottom-6 sm:left-6 lg:bottom-8 lg:left-8">
+                      <div className="h-16 w-[1px] bg-cyan-400/40" />
+                      <div className="h-[1px] w-16 bg-cyan-400/40" />
+                      <div className="mt-2 text-xs tracking-[0.3em] text-cyan-400/60">{ui.navigation}</div>
+                      <div className="text-xs text-cyan-400/40">{ui.navSubtext}</div>
+                    </div>
+                  )}
 
-                  <div className="pointer-events-none absolute bottom-8 right-8">
+                  <div className="pointer-events-none absolute bottom-4 right-4 sm:bottom-6 sm:right-6 lg:bottom-8 lg:right-8 scale-75 origin-bottom-right sm:scale-100">
                     <div className="absolute bottom-16 right-0 h-16 w-[1px] bg-cyan-400/40" />
                     <div className="absolute bottom-16 right-0 h-[1px] w-16 bg-cyan-400/40" />
                     <div className="relative h-32 w-32 border border-cyan-400/30 bg-black/40 backdrop-blur-sm">
@@ -1497,6 +1793,7 @@ export default function PortfolioExperienceShell() {
                       <div className="absolute left-[74%] top-[34%] h-2.5 w-2.5 rounded-full bg-fuchsia-400 animate-pulse" />
                       <div className="absolute left-[28%] top-[62%] h-2.5 w-2.5 rounded-full bg-sky-400 animate-pulse" />
                       <div className="absolute left-[62%] top-[72%] h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse" />
+                      <div className="absolute left-[32%] top-[30%] h-2.5 w-2.5 rounded-full bg-green-400 animate-pulse" />
                     </div>
                     <div className="mt-2 text-center text-xs tracking-[0.3em] text-cyan-400/60">{ui.radar}</div>
                   </div>
@@ -1504,13 +1801,42 @@ export default function PortfolioExperienceShell() {
               ) : null}
 
               {!introActive && !activePlanetId ? (
-                <div className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2">
+                <div className="pointer-events-none absolute left-1/2 top-8 z-20 -translate-x-1/2 hidden sm:block">
+                  <div className="border border-cyan-400/30 bg-black/40 px-6 py-2 backdrop-blur-sm">
+                    <div className="mb-1 text-center text-[10px] tracking-[0.3em] text-cyan-400/60">VELOCITY</div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <div className="font-mono text-lg text-cyan-400">0.0</div>
+                        <div className="text-[10px] text-white/40">m/s</div>
+                      </div>
+                      <div className="h-8 w-px bg-cyan-400/30" />
+                      <div className="text-center">
+                        <div className="font-mono text-lg text-green-400">100</div>
+                        <div className="text-[10px] text-white/40">%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {!introActive && !activePlanetId ? (
+                <div className="absolute bottom-6 left-1/2 lg:bottom-8 z-20 -translate-x-1/2 hidden sm:block">
                   <button
                     type="button"
                     onClick={() => setIntroDismissed(false)}
-                    className="rounded-full border border-cyan-300/20 bg-slate-950/55 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.3em] text-cyan-200/80 backdrop-blur-sm transition hover:border-cyan-300/40 hover:bg-cyan-400/10"
+                    className="group relative transition duration-300 hover:scale-105 active:scale-95"
                   >
-                    {ui.backToIntro}
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-cyan-400/20 blur-lg transition-all group-hover:blur-xl" />
+                    <div className="relative border border-cyan-400/40 bg-black/50 px-10 py-3 backdrop-blur-sm transition-all group-hover:border-cyan-400/70 group-hover:bg-cyan-400/10">
+                      <div className="flex items-center gap-3">
+                        <span className="arrow-shift text-cyan-400">&larr;</span>
+                        <span className="font-mono text-sm tracking-[0.3em] text-cyan-400">{ui.backToIntro}</span>
+                      </div>
+                    </div>
+                    <div className="absolute left-0 top-0 h-2 w-2 border-l border-t border-cyan-400/60" />
+                    <div className="absolute right-0 top-0 h-2 w-2 border-r border-t border-cyan-400/60" />
+                    <div className="absolute bottom-0 left-0 h-2 w-2 border-b border-l border-cyan-400/60" />
+                    <div className="absolute bottom-0 right-0 h-2 w-2 border-b border-r border-cyan-400/60" />
                   </button>
                 </div>
               ) : null}
@@ -1523,8 +1849,8 @@ export default function PortfolioExperienceShell() {
                 }
 
                 const labelText =
-                  planetId === 'projects' ? ui.projects : planetId === 'about' ? ui.about : planetId === 'skills' ? ui.skills : ui.contact;
-                const labelTop = screen.y < viewportSize.height * 0.3 ? 'top-full mt-3' : 'bottom-full mb-3';
+                  planetId === 'home' ? 'HOME' : planetId === 'projects' ? ui.projects : planetId === 'about' ? ui.about : planetId === 'skills' ? ui.skills : ui.contact;
+                const labelTop = 'bottom-full mb-3';
 
                 return (
                   <div
@@ -1547,9 +1873,78 @@ export default function PortfolioExperienceShell() {
                     >
                       <span className="sr-only">{`Open ${config.name}`}</span>
                     </button>
+                    {hoverPlanetId === planetId ? (() => {
+                      const dist = Math.round(Math.sqrt((screen.x - viewportSize.width / 2) ** 2 + (screen.y - viewportSize.height / 2) ** 2));
+                      const preview = planetId === 'projects' ? 'HRnytt \u00b7 Linnea \u00b7 DESMAL'
+                        : planetId === 'about' ? 'Reaktion \u00b7 Frontend \u00b7 UX/UI'
+                        : planetId === 'skills' ? 'React \u00b7 Figma \u00b7 Node.js'
+                        : planetId === 'contact' ? 'Email \u00b7 LinkedIn \u00b7 GitHub'
+                        : 'Social proof \u00b7 Backstory';
+                      return (
+                        <div className="pointer-events-none absolute inset-0">
+                          {/* Rotating dashed orbital ring */}
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1, rotate: 360 }}
+                            transition={{ opacity: { duration: 0.3 }, scale: { duration: 0.3 }, rotate: { duration: 20, repeat: Infinity, ease: 'linear' } }}
+                            className="absolute rounded-full border-2 border-dashed border-cyan-400/40"
+                            style={{ inset: '-30%' }}
+                          />
+                          {/* 4 corner brackets */}
+                          {[
+                            { top: '-26%', left: '-26%', borderClass: 'border-l-2 border-t-2' },
+                            { top: '-26%', right: '-26%', borderClass: 'border-r-2 border-t-2' },
+                            { bottom: '-26%', left: '-26%', borderClass: 'border-l-2 border-b-2' },
+                            { bottom: '-26%', right: '-26%', borderClass: 'border-r-2 border-b-2' },
+                          ].map((pos, i) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.1 + i * 0.05 }}
+                              className={`absolute h-4 w-4 ${pos.borderClass} border-cyan-400/70`}
+                              style={{ top: pos.top, left: pos.left, right: (pos as any).right, bottom: (pos as any).bottom }}
+                            />
+                          ))}
+                          {/* Info panel */}
+                          <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                            className="absolute left-1/2 -translate-x-1/2 w-48 sm:w-52"
+                            style={{ top: 'calc(100% + 20px)' }}
+                          >
+                            <div className="border border-cyan-400/40 bg-black/90 px-5 py-4 backdrop-blur-md">
+                              <div className="font-mono text-xs tracking-[0.2em] text-cyan-400 mb-3">
+                                {config?.name}
+                              </div>
+                              <div className="flex items-center gap-4 text-[10px]">
+                                <div>
+                                  <div className="uppercase tracking-[0.2em] text-white/40">DISTANCE</div>
+                                  <div className="font-mono text-cyan-400 mt-0.5">{dist}km</div>
+                                </div>
+                                <div className="h-6 w-px bg-cyan-400/30" />
+                                <div>
+                                  <div className="uppercase tracking-[0.2em] text-white/40">STATUS</div>
+                                  <div className="font-mono text-green-400 mt-0.5">LOCKED</div>
+                                </div>
+                              </div>
+                              <div className="mt-2.5 text-[10px] text-white/50">{preview}</div>
+                              <motion.div
+                                className="mt-2.5 text-center font-mono text-[10px] tracking-[0.2em] text-cyan-400"
+                                animate={{ opacity: [0.4, 1, 0.4] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                              >
+                                ▸ CLICK TO ENGAGE ◂
+                              </motion.div>
+                            </div>
+                          </motion.div>
+                        </div>
+                      );
+                    })() : null}
                     <div className={'pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 ' + labelTop}>
                       <div className="px-3 py-1.5">
-                        <div className="text-[10px] tracking-[0.28em] text-cyan-400/70">{labelText}</div>
+                        <div className="whitespace-nowrap text-[8px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.28em] text-cyan-400/70">{labelText}</div>
                       </div>
                     </div>
                   </div>
@@ -1574,7 +1969,7 @@ export default function PortfolioExperienceShell() {
 
                   <div
                     className={
-                      'absolute inset-0 z-20 flex items-center justify-start px-5 md:px-12 transition-all duration-700 ' +
+                      'absolute inset-0 z-20 flex items-start md:items-center justify-start px-5 md:px-12 transition-all duration-700 ' +
                       (hologramVisible ? 'translate-x-0 opacity-100' : '-translate-x-24 opacity-0')
                     }
                     style={{ pointerEvents: hologramVisible ? 'auto' : 'none' }}
@@ -1595,6 +1990,27 @@ export default function PortfolioExperienceShell() {
             </div>
           </div>
         </div>
+        {!introActive && !activePlanetId ? (
+          <div className="flex justify-center py-4 sm:hidden">
+            <button
+              type="button"
+              onClick={() => setIntroDismissed(false)}
+              className="group relative transition duration-300 hover:scale-105 active:scale-95"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-cyan-400/20 blur-lg transition-all group-hover:blur-xl" />
+              <div className="relative border border-cyan-400/40 bg-black/50 px-10 py-3 backdrop-blur-sm transition-all group-hover:border-cyan-400/70 group-hover:bg-cyan-400/10">
+                <div className="flex items-center gap-3">
+                  <span className="arrow-shift text-cyan-400">&larr;</span>
+                  <span className="font-mono text-sm tracking-[0.3em] text-cyan-400">{ui.backToIntro}</span>
+                </div>
+              </div>
+              <div className="absolute left-0 top-0 h-2 w-2 border-l border-t border-cyan-400/60" />
+              <div className="absolute right-0 top-0 h-2 w-2 border-r border-t border-cyan-400/60" />
+              <div className="absolute bottom-0 left-0 h-2 w-2 border-b border-l border-cyan-400/60" />
+              <div className="absolute bottom-0 right-0 h-2 w-2 border-b border-r border-cyan-400/60" />
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

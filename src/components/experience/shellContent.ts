@@ -76,7 +76,7 @@ const uiEN: UILabels = {
   introWelcome: 'Welcome aboard. I design, build, and deliver digital experiences from Figma wireframes through development to production.',
   introProof: 'Very curious, engaged, and capable junior frontend developer with strong responsibility for learning and delivery.',
   introNavNote: 'The planets in space hold the sections of the portfolio. Choose a destination to travel there and open its holographic information layer.',
-  statInternship: '7 mo',
+  statInternship: '5 mo',
   statInternshipLabel: 'INTERNSHIP REAKTION',
   statSites: '2 live',
   statSitesLabel: 'CLIENT SITES SHIPPED',
@@ -118,7 +118,7 @@ const uiSV: UILabels = {
   introWelcome: 'Välkommen ombord. Jag designar, bygger och levererar digitala upplevelser från Figma-wireframes genom utveckling till produktion.',
   introProof: 'Mycket nyfiken, engagerad och kapabel frontendutvecklare med starkt ansvarstagande för lärande och leverans.',
   introNavNote: 'Planeterna i rymden håller sektionerna i portfolion. Välj en destination för att resa dit och öppna dess holografiska informationslager.',
-  statInternship: '7 mån',
+  statInternship: '5 mån',
   statInternshipLabel: 'PRAKTIK REAKTION',
   statSites: '2 live',
   statSitesLabel: 'KUNDSAJTER LEVERERADE',
@@ -177,6 +177,53 @@ function buildPortfolio(lang: ShellLang): any {
   const en = lang === 'en';
   return {
     planets: {
+      home: {
+        eyebrow: en ? 'Who is this person?' : 'Vem ligger bakom spakarna?',
+        title: 'Karez Peshawa',
+        intro: en ? 'Frontend Developer & UX/UI Designer' : 'Frontendutvecklare & UX/UI Designer',
+        pitch: en
+          ? 'Frontend developer who bridges design thinking and technical execution \u2014 from Figma concepts to production-ready code. I build interfaces that don\u2019t just work, but genuinely make the experience better.'
+          : 'Frontendutvecklare som bygger bryggan mellan designt\u00e4nk och teknisk exekvering \u2014 fr\u00e5n Figma-koncept till produktionsklar kod. Jag bygger gr\u00e4nssnitt som inte bara fungerar, utan verkligen g\u00f6r upplevelsen b\u00e4ttre.',
+        externalProof: {
+          heading: en ? 'External validation' : 'Extern validering',
+          reaktionQuote: en
+            ? 'Reaktion, one of the Nordics\u2019 leading agencies, called Karez their "design-savvy intern" \u2014 highlighting his ability to simplify and realize user needs.'
+            : 'Reaktion, en av Nordens ledande byr\u00e5er, kallade Karez sin "designvassa praktikant" \u2014 och lyfte hans f\u00f6rm\u00e5ga att f\u00f6renkla och f\u00f6rverkliga anv\u00e4ndarnas behov.',
+          reaktionUrl: 'https://reaktion.se/blogg/mot-karez-var-designvassa-praktikant/',
+          reaktionLabel: en ? 'Read the full article at Reaktion.se' : 'L\u00e4s hela artikeln p\u00e5 Reaktion.se',
+          supervisorHeading: en ? 'Supervisor assessment' : 'Handledarbed\u00f6mning',
+          supervisorQuote: en
+            ? 'Very curious, engaged, and capable junior frontend developer with strong responsibility for learning and delivery.'
+            : 'Mycket nyfiken, engagerad och kapabel junior frontendutvecklare med starkt ansvarstagande f\u00f6r l\u00e4rande och leverans.',
+        },
+        backstory: {
+          heading: en ? 'The path here' : 'V\u00e4gen hit',
+          items: en
+            ? [
+                'Discovered digital creation through Photoshop at age 12',
+                'Theater background \u2014 writing and acting built creativity and courage',
+                'Political science degree + worked at the Speaker\u2019s office in Kurdistan\u2019s parliament',
+                'Moved to Sweden and found frontend development as the true calling',
+              ]
+            : [
+                'Uppt\u00e4ckte digitalt skapande genom Photoshop vid 12 \u00e5rs \u00e5lder',
+                'Teaterbakgrund \u2014 manusskrivande och sk\u00e5despel byggde kreativitet och mod',
+                'Statsvetenskaplig examen + arbete p\u00e5 Talmannens kontor i Kurdistans parlament',
+                'Flyttade till Sverige och hittade sitt kall inom frontendutveckling',
+              ],
+        },
+        cta: {
+          heading: en ? 'Available now' : 'Tillg\u00e4nglig nu',
+          text: en
+            ? 'Looking for frontend and design roles where quality, execution, and product thinking matter.'
+            : 'S\u00f6ker frontend- och designroller d\u00e4r kvalitet, exekvering och produktt\u00e4nk spelar roll.',
+        },
+        stats: en
+          ? [{ value: '5 mo', label: 'Internship Reaktion' }, { value: '2 live', label: 'Client sites shipped' }, { value: 'A+', label: 'Supervisor grade' }]
+          : [{ value: '5 m\u00e5n', label: 'Praktik Reaktion' }, { value: '2 live', label: 'Kundsajter levererade' }, { value: 'A+', label: 'Handledarbed\u00f6mning' }],
+        navHeading: '',
+        destinations: [],
+      },
       projects: {
         eyebrow: en ? 'Selected work' : 'Utvalt arbete',
         title: en ? 'Projects that show delivery, interface judgment, and technical range.' : 'Projekt som visar leveransförmåga, gränssnittsomdöme och teknisk bredd.',
@@ -198,7 +245,7 @@ function buildPortfolio(lang: ShellLang): any {
       about: {
         eyebrow: en ? 'Mission profile' : 'Uppdragsprofil',
         title: en ? 'A frontend developer with strong design instincts and a bias toward shipping.' : 'Frontendutvecklare med stark designkänsla och tydlig vilja att leverera.',
-        intro: en ? 'I am currently completing a 7-month internship at Reaktion, where I have delivered two live client websites and worked across design, development, accessibility, and collaboration with broader teams.' : 'Jag gör just nu en 7 månader lång praktik på Reaktion där jag har levererat två live kundwebbplatser och arbetat med design, utveckling, tillgänglighet och samarbete i tvärfunktionella team.',
+        intro: en ? 'I completed a 5-month internship at Reaktion, where I delivered two live client websites and worked across design, development, accessibility, and collaboration with broader teams.' : 'Jag har avslutat en 5 månader lång praktik på Reaktion där jag levererade två live kundwebbplatser och arbetade med design, utveckling, tillgänglighet och samarbete i tvärfunktionella team.',
         body: en ? 'My strongest work sits between product clarity and frontend execution. I enjoy turning rough requirements into interfaces that feel structured, calm, and ready for real users.' : 'Mitt starkaste arbete finns mellan produktklarhet och frontendexekvering. Jag tycker om att omvandla otydliga behov till gränssnitt som känns strukturerade, lugna och redo för riktiga användare.',
         timelineHeading: en ? 'Recent trajectory' : 'Nylig riktning',
         timeline: en ? ['Delivered live client work at Reaktion from design direction to production frontend.', 'Built bilingual and accessibility-aware interfaces for real organizations.', 'Contributed product and visual thinking beyond pure implementation.'] : ['Levererat live kundarbete på Reaktion från designriktning till produktionsfrontend.', 'Byggt tvåspråkiga och tillgänglighetsmedvetna gränssnitt för verkliga organisationer.', 'Bidragit med produkt- och visuellt tänk utöver ren implementation.'],

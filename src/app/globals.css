@@ -2,6 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Sci-fi thin scrollbar for hologram panels */
+.holo-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.holo-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.holo-scroll::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.25);
+  border-radius: 2px;
+}
+.holo-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.45);
+}
+.holo-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(6, 182, 212, 0.25) transparent;
+}
+
 :root {
   --space-bg: #0a0a0f;
   --space-panel: rgba(10, 10, 20, 0.84);
@@ -187,4 +206,13 @@ button {
 
 .animate-holo-drill-back {
   animation: holo-drill-back 0.38s ease-out both;
+}
+
+@keyframes gyro-pulse {
+  0%, 100% { box-shadow: 0 0 15px rgba(6, 182, 212, 0.8); }
+  50% { box-shadow: 0 0 25px rgba(6, 182, 212, 1); }
+}
+
+.gyro-core {
+  animation: gyro-pulse 2s ease-in-out infinite;
 }
